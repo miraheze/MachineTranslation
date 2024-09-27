@@ -90,7 +90,7 @@ class SubTranslate {
 	 *	""	failed
 	 */
 	private static function callDeepL( $text, $tolang ) {
-		global $wgSubTranslateTimeout, $wgSubTranslateAPIKey;
+		global $wgHTTPProxy, $wgSubTranslateTimeout, $wgSubTranslateAPIKey;
 
 		/* parameter check */
 		if( empty( $text ) or empty( $tolang ) ) {
@@ -146,6 +146,9 @@ class SubTranslate {
 				'timeout' => (float)( $wgSubTranslateTimeout ?? 5 )
 			]
 		];
+		if ( isset( $wgHTTPProxy ) ) {
+			$param['http']['proxy'] = $wgHTTPProxy;
+		}
 		$stream = stream_context_create( $param );
 
 		/* call API */
