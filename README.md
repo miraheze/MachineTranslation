@@ -1,3 +1,10 @@
+This is a fork of Extension:SubTranslate. It:
+* Respects `$wgHTTPProxy`
+
+The original README is reproduced below.
+
+----
+
 A MediaWiki extension ([http://www.mediawiki.org/wiki/Extension:SubTranslate Extension:SubTranslate]) provides auto translate service by machine-translate API (DeepL).
 
 Please see for details:
