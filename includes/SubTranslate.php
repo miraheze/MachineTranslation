@@ -278,7 +278,7 @@ class SubTranslate {
 		$langtitle = $wgSubTranslateSuppressLanguageCaption ? "" : $basetitle->getTitleValue()->getText() . '<span class="targetlang"> (' . $langcaption . ')</span>';
 
 		/* create WikiPage of basepage */
-		$page = WikiPage::factory( $basetitle );
+		$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $basetitle );
 		if( $page === null or !$page->exists() ) {
 			return;
 		}
