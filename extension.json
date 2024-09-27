@@ -1,0 +1,27 @@
+{
+	"name": "SubTranslate",
+	"version": "1.0.2",
+	"author": "[https://kimagurenote.net/ Kimagurenote]",
+	"url": "http://www.mediawiki.org/wiki/Extension:SubTranslate",
+	"descriptionmsg": "subtranslate-desc",
+	"license-name": "BSD-3-Clause",
+	"type": "interface",
+	"requires": {
+		"MediaWiki": ">= 1.35.0",
+		"platform": {
+			"php": ">= 7.2.0"
+		}
+	},
+	"MessagesDirs": {
+		"SubTranslate": [
+			"i18n"
+		]
+	},
+	"AutoloadClasses": {
+		"SubTranslate": "includes/SubTranslate.php"
+	},
+	"Hooks": {
+		"ArticleViewHeader": "SubTranslate::onArticleViewHeader"
+	},
+	"manifest_version": 1
+}

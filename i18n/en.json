@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Kimagurenote"
+		]
+	},
+	"subtranslate-desc": "Provides automatic machine translation by DeepL API for any pages in NS_MAIN via subpage mechanism."
+}
