@@ -2,7 +2,7 @@
 	"name": "SubTranslate",
 	"version": "1.0.2",
 	"author": "[https://kimagurenote.net/ Kimagurenote]",
-	"url": "http://www.mediawiki.org/wiki/Extension:SubTranslate",
+	"url": "https://www.mediawiki.org/wiki/Extension:SubTranslate",
 	"descriptionmsg": "subtranslate-desc",
 	"license-name": "BSD-3-Clause",
 	"type": "interface",
