@@ -132,28 +132,29 @@ class SubTranslate {
 			/* encode error or content length over 128KiB */
 			return "";
 		}
-		$param = [
-			'http' => [
-				'method' => "POST",
-				'header' => [
-					"Host: $host",
-					"Authorization: DeepL-Auth-Key $key",
-					"User-Agent: " . self::$extname . '/' . self::$extinfo['version'] . " (MediaWiki Extension)",
-					"Content-Length: " . strlen( $json ),
-					"Content-Type: application/json"
-				],
-				'content' => $json,
-				'timeout' => (float)( $wgSubTranslateTimeout ?? 5 )
-			]
-		];
-		if ( isset( $wgHTTPProxy ) ) {
-			$param['http']['proxy'] = $wgHTTPProxy;
-		}
-		$stream = stream_context_create( $param );
+
+		$requestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
+		$request = $requestFactory->create( "https://{$host}/v2/translate", [
+			'method' => 'POST',
+			'postData' => $json,
+			'userAgent' => self::$extname . '/' . self::$extinfo['version'] . " (MediaWiki Extension)",
+		], __METHOD__ );
+		$request->setHeader( 'Content-Type', 'application/json' );
+		$request->setHeader( 'Authorization', "DeepL-Auth-Key {$key}" );
 
 		/* call API */
 		/* https://www.deepl.com/ja/docs-api/translate-text/multiple-sentences */
-		$ret = file_get_contents( "https://$host/v2/translate", false, $stream );
+		$status = $request->execute();
+		if ( !$status->isGood() ) {
+			return "";
+		}
+
+		/* status here refers to the HTTP response code */
+		if ( $request->getStatus() !== 200 ) {
+			return "";
+		}
+
+		$ret = $request->getContent();
 		if( empty( $ret ) ) {
 			return "";
 		}
