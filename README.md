@@ -1,5 +1,5 @@
 This is a fork of Extension:SubTranslate. It:
-* Respects `$wgHTTPProxy`
+* Rewrote the API part to send requests using MWHttpRequest, thus respecting `$wgHTTPProxy` by default
 
 The original README is reproduced below.
 
