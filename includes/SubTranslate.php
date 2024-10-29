@@ -89,8 +89,8 @@ class SubTranslate {
 	 * return string
 	 *	""	failed
 	 */
-	private static function callDeepL( $text, $tolang ) {
-		global $wgHTTPProxy, $wgSubTranslateTimeout, $wgSubTranslateAPIKey;
+	private static function callTranslation( $text, $tolang ) {
+		global $wgHTTPProxy, $wgSubTranslateTimeout;
 
 		/* parameter check */
 		if( empty( $text ) or empty( $tolang ) ) {
@@ -98,17 +98,6 @@ class SubTranslate {
 		}
 		/* target language code */
 		$tolang = strtoupper( $tolang );
-
-		/* get API key and host */
-		foreach( $wgSubTranslateAPIKey as $host => $key ) {
-			if( preg_match( '/^api(-free)?.deepl.com$/', $host ) ) {
-				break;
-			}
-			unset( $host );
-		}
-		if( empty( $host ) or empty( $key ) ) {
-			return "";
-		}
 
 		/* get self info to use User-Agent */
 		if( empty( self::$extname ) or empty( self::$extinfo ) ) {
@@ -118,9 +107,9 @@ class SubTranslate {
 
 		/* make parameter to call API */
 		$data = [
-			'target_lang' => $tolang,
-			'tag_handling' => "html",
-			'text' => [ $text ]
+			'source' => 'auto',
+			'target' => $tolang,
+			'q' => $text,
 		];
 		$json = json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE );
 		/* for debug *	var_dump( $json ); */
@@ -134,13 +123,12 @@ class SubTranslate {
 		}
 
 		$requestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
-		$request = $requestFactory->create( "https://{$host}/v2/translate", [
+		$request = $requestFactory->create( "https://trans.zillyhuhn.com/translate", [
 			'method' => 'POST',
 			'postData' => $json,
 			'userAgent' => self::$extname . '/' . self::$extinfo['version'] . " (MediaWiki Extension)",
 		], __METHOD__ );
 		$request->setHeader( 'Content-Type', 'application/json' );
-		$request->setHeader( 'Authorization', "DeepL-Auth-Key {$key}" );
 
 		/* call API */
 		/* https://www.deepl.com/ja/docs-api/translate-text/multiple-sentences */
@@ -161,7 +149,7 @@ class SubTranslate {
 
 		$json = json_decode( $ret, true );
 
-		return $json['translations'][0]['text'] ?? "";
+		return $json['translatedText'] ?? '';
 	}
 
 
@@ -302,7 +290,7 @@ class SubTranslate {
 			unset($basetitle);
 
 			/* translate */
-			$text = self::callDeepL( $out->parseAsContent( $text ), $subpage );
+			$text = self::callTranslation( $out->parseAsContent( $text ), $subpage );
 			if( empty( $text ) ) {
 				return;
 			}
