@@ -97,7 +97,7 @@ class SubTranslate {
 			return "";
 		}
 		/* target language code */
-		$tolang = strtoupper( $tolang );
+		$tolang = strtolower( $tolang );
 
 		/* get self info to use User-Agent */
 		if( empty( self::$extname ) or empty( self::$extinfo ) ) {
@@ -109,6 +109,7 @@ class SubTranslate {
 		$data = [
 			'source' => 'auto',
 			'target' => $tolang,
+			'format' => 'html',
 			'q' => $text,
 		];
 		$json = json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE );
@@ -122,36 +123,25 @@ class SubTranslate {
 			return "";
 		}
 
-		$requestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
-		$request = $requestFactory->create( "https://trans.zillyhuhn.com/translate", [
-			'method' => 'POST',
-			'postData' => $json,
-			'userAgent' => self::$extname . '/' . self::$extinfo['version'] . " (MediaWiki Extension)",
-		], __METHOD__ );
-		$request->setHeader( 'Content-Type', 'application/json' );
-
 		/* call API */
-		/* https://www.deepl.com/ja/docs-api/translate-text/multiple-sentences */
-		$status = $request->execute();
-		if ( !$status->isGood() ) {
-			return "";
-		}
+
+		$requestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
+		$request = $requestFactory->createMultiClient( [ 'proxy' => $wgHTTPProxy ] )
+			->run( [
+				'url' => 'https://trans.zillyhuhn.com/translate',
+				'method' => 'POST',
+				'body' => $data,
+				'userAgent' => self::$extname . '/' . self::$extinfo['version'] . ' (MediaWiki Extension)',
+			] );
 
 		/* status here refers to the HTTP response code */
-		if ( $request->getStatus() !== 200 ) {
+		if ( $request['code'] !== 200 ) {
 			return "";
 		}
 
-		$ret = $request->getContent();
-		if( empty( $ret ) ) {
-			return "";
-		}
-
-		$json = json_decode( $ret, true );
-
+		$json = json_decode( $request['body'], true );
 		return $json['translatedText'] ?? '';
 	}
-
 
 	/**
 	 * store cache data in MediaWiki ObjectCache mechanism
