@@ -4,16 +4,21 @@ namespace Miraheze\SubTranslate;
 
 use Article;
 use ContentHandler;
+use MediaWiki\Config\Config;
+use MediaWiki\Config\ConfigFactory;
 use MediaWiki\Html\Html;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Http\HttpRequestFactory;
+use MediaWiki\Languages\LanguageNameUtils;
+use MediaWiki\MainConfigNames;
+use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\ParserOutput;
-use MediaWiki\Title\Title;
-use ObjectCache;
+use MediaWiki\Title\TitleFactory;
+use ObjectCacheFactory;
 
-class SubTranslate {
+class Hooks {
 
 	/* accepted language codes and captions */
-	static $targetLangs = [
+	private static $targetLangs = [
 		'BG' => 'български език',	/* Bulgarian */
 		'CS' => 'český jazyk',	/* Czech */
 		'DA' => 'dansk',	/* Danish */
@@ -49,10 +54,32 @@ class SubTranslate {
 		'ZH' => '中文'	/* Chinese (simplified) */
 	];
 
+	private Config $config;
+	private HttpRequestFactory $httpRequestFactory;
+	private LanguageNameUtils $languageNameUtils;
+	private ObjectCacheFactory $objectCacheFactory;
+	private TitleFactory $titleFactory;
+	private WikiPageFactory $wikiPageFactory;
 
-	private static function callTranslation( string $text, string $tolang ): string {
-		global $wgHTTPProxy, $wgSubTranslateTimeout;
+	public function __construct(
+		ConfigFactory $configFactory,
+		HttpRequestFactory $httpRequestFactory,
+		LanguageNameUtils $languageNameUtils,
+		ObjectCacheFactory $objectCacheFactory,
+		TitleFactory $titleFactory,
+		WikiPageFactory $wikiPageFactory
+	) {
+		$this->httpRequestFactory = $httpRequestFactory;
+		$this->languageNameUtils = $languageNameUtils;
+		$this->objectCacheFactory $objectCacheFactory;
+		$this->titleFactory = $titleFactory;
+		$this->wikiPageFactory = $wikiPageFactory;
 
+		$this->config = $configFactory->makeConfig( 'SubTranslate' );
+	}
+
+
+	private function callTranslation( string $text, string $tolang ): string {
 		/* parameter check */
 		if ( !$text || !$tolang ) {
 			return '';
@@ -67,22 +94,21 @@ class SubTranslate {
 		$tolang = strtolower( $tolang );
 
 		/* call API */
-
-		$requestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
-		$request = $requestFactory->createMultiClient( [ 'proxy' => $wgHTTPProxy ] )
-			->run( [
-				'url' => 'https://trans.zillyhuhn.com/translate',
-				'method' => 'POST',
-				'body' => [
-					'source' => 'auto',
-					'target' => $tolang,
-					'format' => 'html',
-					'q' => $text,
-				],
-				'headers' => [
-					'User-Agent' => 'SubTranslate, MediaWiki extension (https://github.com/miraheze/SubTranslate)',
-				]
-			], [ 'reqTimeout' => $wgSubTranslateTimeout ] );
+		$request = $this->httpRequestFactory->createMultiClient(
+			[ 'proxy' => $this->config->get( MainConfigNames::HTTPProxy ) ]
+		)->run( [
+			'url' => 'https://trans.zillyhuhn.com/translate',
+			'method' => 'POST',
+			'body' => [
+				'source' => 'auto',
+				'target' => $tolang,
+				'format' => 'html',
+				'q' => $text,
+			],
+			'headers' => [
+				'User-Agent' => 'SubTranslate, MediaWiki extension (https://github.com/miraheze/SubTranslate)',
+			]
+		], [ 'reqTimeout' => $this->config->get( 'SubTranslateTimeout' ) ] );
 
 		/* status here refers to the HTTP response code */
 		if ( $request['code'] !== 200 ) {
@@ -103,19 +129,14 @@ class SubTranslate {
 	 * @param string $value
 	 * @return bool Success
 	 */
-	private static function storeCache( string $key, string $value ): bool {
-		global $wgSubTranslateCaching, $wgSubTranslateCachingTime;
-
-		if ( !$wgSubTranslateCaching ) {
+	private function storeCache( string $key, string $value ): bool {
+		if ( !$this->config->get( 'SubTranslateCaching' ) ) {
 			return false;
 		}
 
-		/* Cache expiry time in seconds, default = 86400sec (1d) */
-		$exptime = $wgSubTranslateCachingTime ?? 86400;
-
-		$cache = ObjectCache::getInstance( CACHE_ANYTHING );
+		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
 		$cachekey = $cache->makeKey( 'subtranslate', $key );
-		return $cache->set( $cachekey, $value, $exptime );
+		return $cache->set( $cachekey, $value, $this->config->get( 'SubTranslateCachingTime' ) );
 	}
 
 
@@ -128,22 +149,20 @@ class SubTranslate {
 	 * @param string $key
 	 * @return bool|string
 	 */
-	private static function getCache( string $key ): bool|string {
-		global $wgSubTranslateCaching, $wgSubTranslateCachingTime;
-
-		if ( !$wgSubTranslateCaching ) {
+	private function getCache( string $key ): bool|string {
+		if ( !$this->config->get( 'SubTranslateCaching' ) ) {
 			return false;
 		}
 
-		$cache = ObjectCache::getInstance( CACHE_ANYTHING );
-		$cachekey = $cache->makeKey( 'subtranslate', $key );
+		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
+		$cacheKey = $cache->makeKey( 'subtranslate', $key );
 
-		if ( $wgSubTranslateCachingTime === false ) {
-			$cache->delete( $cachekey );
+		if ( $this->config->get( 'SubTranslateCachingTime' ) === 0 ) {
+			$cache->delete( $cacheKey );
 			return false;
 		}
 
-		return $cache->get( $cachekey );
+		return $cache->get( $cacheKey );
 	}
 
 
@@ -154,9 +173,7 @@ class SubTranslate {
 	 * @param bool|ParserOutput|null &$outputDone
 	 * @param bool &$pcache
 	 */
-	public static function onArticleViewHeader( $article, &$outputDone, &$pcache ) {
-		global $wgSubTranslateSuppressLanguageCaption, $wgSubTranslateRobotPolicy;
-
+	public function onArticleViewHeader( $article, &$outputDone, &$pcache ) {
 		/* use parser cache */
 		$pcache = true;
 
@@ -194,16 +211,16 @@ class SubTranslate {
 		}
 
 		/* create new Title from basepagename */
-		$basetitle = Title::newFromText( $basepage, $ns );
+		$basetitle = $this->titleFactory->newFromText( $basepage, $ns );
 		if ( $basetitle === null || !$basetitle->exists() ) {
 			return;
 		}
 
 		/* get title text for replace (basepage title + language caption ) */
-		$langcaption = ucfirst( MediaWikiServices::getInstance()->getLanguageNameUtils()->getLanguageName( $subpage ) ?? self::$targetLangs[ strtoupper( $subpage ) ] );
+		$langcaption = ucfirst( $this->languageNameUtils->getLanguageName( $subpage ) ?? self::$targetLangs[ strtoupper( $subpage ) ] );
 
 		$langtitle = '';
-		if ( !$wgSubTranslateSuppressLanguageCaption ) {
+		if ( !$this->config->get( 'SubTranslateSuppressLanguageCaption' ) ) {
 			$langtitle = $basetitle->getTitleValue()->getText() .
 				Html::element( 'span',
 					[
@@ -214,12 +231,11 @@ class SubTranslate {
 		}
 
 		/* create WikiPage of basepage */
-		$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $basetitle );
+		$page = $this->wikiPageFactory->newFromTitle( $basetitle );
 		if ( $page === null || !$page->exists() ) {
 			return;
 		}
 
-		/* https://www.mediawiki.org/wiki/Manual:OutputPage.php */
 		$out = $article->getContext()->getOutput();
 
 		/* get cache if enabled */
@@ -257,9 +273,9 @@ class SubTranslate {
 		}
 
 		/* set robot policy */
-		if ( $wgSubTranslateRobotPolicy ) {
+		if ( $this->config->get( 'SubTranslateRobotPolicy' ) ) {
 			/* https://www.mediawiki.org/wiki/Manual:Noindex */
-			$out->setRobotpolicy( $wgSubTranslateRobotPolicy );
+			$out->setRobotPolicy( $this->config->get( 'SubTranslateRobotPolicy' ) );
 		}
 
 		/* stop to render default message */
