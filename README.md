@@ -1,5 +1,5 @@
 This is a fork of Extension:SubTranslate. It:
-* Rewrote the API part to send requests using MWHttpRequest, thus respecting `$wgHTTPProxy` by default
+* Rewrote the extension to cleanup code and use LibreTranslate rather than DeepL.
 
 The original README is reproduced below.
 
