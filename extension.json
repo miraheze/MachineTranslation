@@ -24,7 +24,22 @@
 		"Miraheze\\SubTranslate\\": "includes/"
 	},
 	"Hooks": {
-		"ArticleViewHeader": "Miraheze\\SubTranslate\\SubTranslate::onArticleViewHeader"
+		"ArticleViewHeader": {
+			"handler": "Hooks"
+		}
+	},
+	"HookHandlers": {
+		"Hooks": {
+			"class": "Miraheze\\SubTranslate\\Hooks",
+			"services": [
+				"ConfigFactory",
+				"HttpRequestFactory",
+				"LanguageNameUtils",
+				"ObjectCacheFactory",
+				"TitleFactory",
+				"WikiPageFactory"
+			]
+		}
 	},
 	"config": {
 		"SubTranslateCaching": {
