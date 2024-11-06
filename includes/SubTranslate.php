@@ -32,96 +32,65 @@
  * @license The BSD 3-Clause License
  */
 
-if( !defined( 'MEDIAWIKI' ) ) {
-	echo( "This file is an extension to the MediaWiki software and cannot be used standalone.\n" );
-	die( 1 );
-}
-
-use MediaWiki\Languages\LanguageNameUtils;
+use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 
 class SubTranslate {
-	/* Extension information */
-	static $extname = "";
-	static $extinfo = null;
 
 	/* accepted language codes and captions */
 	static $targetLangs = [
-		'BG' => "български език",	/* Bulgarian */
-		'CS' => "český jazyk",	/* Czech */
-		'DA' => "dansk",	/* Danish */
-		'DE' => "Deutsch",	/* German */
-		'EL' => "ελληνικά",	/* Greek */
-		'EN' => "English",	/* English */	/* unspecified variant for backward compatibility; please select EN-GB or EN-US instead */
-		'EN-GB' => "British English",	/* English (British) */
-		'EN-US' => "American English",	/* English (American) */
-		'ES' => "español",	/* Spanish */
-		'ET' => "eesti keel",	/* Estonian */
-		'FI' => "suomi",	/* Finnish */
-		'FR' => "français",	/* French */
-		'HU' => "magyar nyelv",	/* Hungarian */
-		'ID' => "Bahasa Indonesia",	/* Indonesian */
-		'IT' => "italiano",	/* Italian */
-		'JA' => "日本語",	/* Japanese */
-		'KO' => "한국어",	/* Korean */
-		'LT' => "lietuvių kalba",	/* Lithuanian */
-		'LV' => "latviešu",	/* Latvian */
-		'NB' => "norsk bokmål",	/* Norwegian (Bokmål) */
-		'NL' => "Dutch",	/* Dutch */
-		'PL' => "polski",	/* Polish */
-		'PT' => "português",	/* Portuguese */	/* unspecified variant for backward compatibility; please select PT-BR or PT-PT instead */
-		'PT-BR' => "português",	/* Portuguese (Brazilian) */
-		'PT-PT' => "português",	/* Portuguese (all Portuguese varieties excluding Brazilian Portuguese) */
-		'RO' => "limba română",	/* Romanian */
-		'RU' => "русский язык",	/* Russian */
-		'SK' => "slovenčina",	/* Slovak */
-		'SL' => "slovenski jezik",	/* Slovenian */
-		'SV' => "Svenska",	/* Swedish */
-		'TR' => "Türkçe",	/* Turkish */
-		'UK' => "українська мова",	/* Ukrainian */
-		'ZH' => "中文"	/* Chinese (simplified) */
+		'BG' => 'български език',	/* Bulgarian */
+		'CS' => 'český jazyk',	/* Czech */
+		'DA' => 'dansk',	/* Danish */
+		'DE' => 'Deutsch',	/* German */
+		'EL' => 'ελληνικά',	/* Greek */
+		'EN' => 'English',	/* English */	/* unspecified variant for backward compatibility; please select EN-GB or EN-US instead */
+		'EN-GB' => 'British English',	/* English (British) */
+		'EN-US' => 'American English',	/* English (American) */
+		'ES' => 'español',	/* Spanish */
+		'ET' => 'eesti keel',	/* Estonian */
+		'FI' => 'suomi',	/* Finnish */
+		'FR' => 'français',	/* French */
+		'HU' => 'magyar nyelv',	/* Hungarian */
+		'ID' => 'Bahasa Indonesia',	/* Indonesian */
+		'IT' => 'italiano',	/* Italian */
+		'JA' => '日本語',	/* Japanese */
+		'KO' => '한국어',	/* Korean */
+		'LT' => 'lietuvių kalba',	/* Lithuanian */
+		'LV' => 'latviešu',	/* Latvian */
+		'NB' => 'norsk bokmål',	/* Norwegian (Bokmål) */
+		'NL' => 'Dutch',	/* Dutch */
+		'PL' => 'polski',	/* Polish */
+		'PT' => 'português',	/* Portuguese */	/* unspecified variant for backward compatibility; please select PT-BR or PT-PT instead */
+		'PT-BR' => 'português',	/* Portuguese (Brazilian) */
+		'PT-PT' => 'português',	/* Portuguese (all Portuguese varieties excluding Brazilian Portuguese) */
+		'RO' => 'limba română',	/* Romanian */
+		'RU' => 'русский язык',	/* Russian */
+		'SK' => 'slovenčina',	/* Slovak */
+		'SL' => 'slovenski jezik',	/* Slovenian */
+		'SV' => 'Svenska',	/* Swedish */
+		'TR' => 'Türkçe',	/* Turkish */
+		'UK' => 'українська мова',	/* Ukrainian */
+		'ZH' => '中文'	/* Chinese (simplified) */
 	];
 
 
-	/**
-	 * @param string $text
-	 * string $tolang
-	 * return string
-	 *	""	failed
-	 */
-	private static function callTranslation( $text, $tolang ) {
+	private static function callTranslation( string $text, string $tolang ): string {
 		global $wgHTTPProxy, $wgSubTranslateTimeout;
 
 		/* parameter check */
-		if( empty( $text ) or empty( $tolang ) ) {
-			return "";
+		if ( !$text || !$tolang ) {
+			return '';
 		}
+		
+		if ( strlen( $text ) > 131072 ) {
+			/* encode error or content length over 128KiB */
+			return '';
+		}
+
 		/* target language code */
 		$tolang = strtolower( $tolang );
-
-		/* get self info to use User-Agent */
-		if( empty( self::$extname ) or empty( self::$extinfo ) ) {
-			self::$extname = get_class();
-			self::$extinfo = ( ExtensionRegistry::getInstance()->getAllThings() )[ self::$extname ];
-		}
-
-		/* make parameter to call API */
-		$data = [
-			'source' => 'auto',
-			'target' => $tolang,
-			'format' => 'html',
-			'q' => $text,
-		];
-		$json = json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE );
-		/* for debug *	var_dump( $json ); */
-		if( empty( $json ) ) {
-			/* for debug */	var_dump( json_last_error() );
-			return "";
-		}
-		if( strlen( $json ) > 131072 ) {
-			/* encode error or content length over 128KiB */
-			return "";
-		}
 
 		/* call API */
 
@@ -130,13 +99,21 @@ class SubTranslate {
 			->run( [
 				'url' => 'https://trans.zillyhuhn.com/translate',
 				'method' => 'POST',
-				'body' => $data,
-				'userAgent' => self::$extname . '/' . self::$extinfo['version'] . ' (MediaWiki Extension)',
-			] );
+				'body' => [
+					'source' => 'auto',
+					'target' => $tolang,
+					'format' => 'html',
+					'q' => $text,
+				],
+				'headers' => [
+					'Content-Type' => 'application/json',
+					'User-Agent' => 'SubTranslate, MediaWiki extension (https://github.com/miraheze/SubTranslate)',
+				]
+			], [ 'reqTimeout' => $wgSubTranslateTimeout ] );
 
 		/* status here refers to the HTTP response code */
 		if ( $request['code'] !== 200 ) {
-			return "";
+			return '';
 		}
 
 		$json = json_decode( $request['body'], true );
@@ -151,20 +128,17 @@ class SubTranslate {
 	 *
 	 * @param string $key
 	 * @param string $value
-	 * @param string $exptime Either an interval in seconds or a unix timestamp for expiry
 	 * @return bool Success
 	 */
-	private static function storeCache( $key, $value, $exptime = 0 ) {
+	private static function storeCache( string $key, string $value ): bool {
 		global $wgSubTranslateCaching, $wgSubTranslateCachingTime;
 
-		if( empty( $wgSubTranslateCaching ) ) {
+		if ( !$wgSubTranslateCaching ) {
 			return false;
 		}
 
 		/* Cache expiry time in seconds, default = 86400sec (1d) */
-		if( !$exptime ) {
-			$exptime = $wgSubTranslateCachingTime ?? 86400;
-		}
+		$exptime = $wgSubTranslateCachingTime ?? 86400;
 
 		$cache = ObjectCache::getInstance( CACHE_ANYTHING );
 		$cachekey = $cache->makeKey( 'subtranslate', $key );
@@ -179,52 +153,50 @@ class SubTranslate {
 	 * https://doc.wikimedia.org/mediawiki-core/master/php/classBagOStuff.html
 	 *
 	 * @param string $key
-	 * @return mixed
+	 * @return bool|string
 	 */
-	private static function getCache( $key ) {
+	private static function getCache( string $key ): bool|string {
 		global $wgSubTranslateCaching, $wgSubTranslateCachingTime;
 
-		if( empty( $wgSubTranslateCaching ) ) {
-			return null;
+		if ( !$wgSubTranslateCaching ) {
+			return false;
 		}
 
 		$cache = ObjectCache::getInstance( CACHE_ANYTHING );
 		$cachekey = $cache->makeKey( 'subtranslate', $key );
-		if( $wgSubTranslateCachingTime === false ) {
+
+		if ( $wgSubTranslateCachingTime === false ) {
 			$cache->delete( $cachekey );
-			return null;
+			return false;
 		}
+
 		return $cache->get( $cachekey );
 	}
 
 
 	/**
 	 * https://www.mediawiki.org/wiki/Manual:Hooks/ArticleViewHeader
-	 * @param Article &$article
-	 *	https://www.mediawiki.org/wiki/Manual:Article.php
-	 *	bool or ParserOutput &$outputDone
-	 *	bool &$pcache
-	 * return null
+	 *
+	 * @param Article $article
+	 * @param bool|ParserOutput|null &$outputDone
+	 * @param bool &$pcache
 	 */
-	public static function onArticleViewHeader( &$article, &$outputDone, bool &$pcache ) {
-		global $wgContentNamespaces, $wgSubTranslateSuppressLanguageCaption, $wgSubTranslateRobotPolicy;
+	public static function onArticleViewHeader( $article, &$outputDone, &$pcache ) {
+		global $wgSubTranslateSuppressLanguageCaption, $wgSubTranslateRobotPolicy;
 
 		/* use parser cache */
 		$pcache = true;
 
 		/* not change if (sub)page is exist */
-		if( $article->getPage()->exists() ) {
+		if ( $article->getPage()->exists() ) {
 			return;
 		}
 
-		/* check namespace */
 		$title = $article->getTitle();
 		$ns = $title->getNamespace();
-		if( empty( $wgContentNamespaces ) ) {
-			if( $ns != NS_MAIN ) {
-				return;
-			}
-		} elseif ( !in_array( $ns, $wgContentNamespaces, true ) ) {
+
+		/* check namespace */
+		if ( !$title->isContentPage() ) {
 			return;
 		}
 
@@ -234,31 +206,43 @@ class SubTranslate {
 		$subpage = $title->getSubpageText();
 
 		/* not subpage if same $basepage as $subpage */
-		if( strcmp( $basepage, $subpage ) === 0 ) {
+		if ( strcmp( $basepage, $subpage ) === 0 ) {
 			return;
 		}
 
 		/* language code check */
-		if( !preg_match('/^[A-Za-z][A-Za-z](\-[A-Za-z][A-Za-z])?$/', $subpage ) ) {
+		if ( !preg_match( '/^[A-Za-z][A-Za-z](\-[A-Za-z][A-Za-z])?$/', $subpage ) ) {
 			return;
 		}
+
 		/* accept language? */
-		if( !array_key_exists( strtoupper( $subpage ), self::$targetLangs ) ) {
+		if ( !array_key_exists( strtoupper( $subpage ), self::$targetLangs ) ) {
 			return;
 		}
 
 		/* create new Title from basepagename */
 		$basetitle = Title::newFromText( $basepage, $ns );
-		if( $basetitle === null or !$basetitle->exists() ) {
+		if ( $basetitle === null || !$basetitle->exists() ) {
 			return;
 		}
+
 		/* get title text for replace (basepage title + language caption ) */
 		$langcaption = ucfirst( MediaWikiServices::getInstance()->getLanguageNameUtils()->getLanguageName( $subpage ) ?? self::$targetLangs[ strtoupper( $subpage ) ] );
-		$langtitle = $wgSubTranslateSuppressLanguageCaption ? "" : $basetitle->getTitleValue()->getText() . '<span class="targetlang"> (' . $langcaption . ')</span>';
+
+		$langtitle = '';
+		if ( !$wgSubTranslateSuppressLanguageCaption ) {
+			$langtitle = $basetitle->getTitleValue()->getText() .
+				Html::element( 'span',
+					[
+					      'class' => 'targetlang',
+					],
+					'(' . $langcaption . ')'
+				);
+		}
 
 		/* create WikiPage of basepage */
 		$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $basetitle );
-		if( $page === null or !$page->exists() ) {
+		if ( $page === null || !$page->exists() ) {
 			return;
 		}
 
@@ -270,18 +254,19 @@ class SubTranslate {
 		$text = self::getCache( $cachekey );
 
 		/* translate if cache not found */
-		if( empty( $text ) ) {
-
+		if ( !$text ) {
 			/* get content of basepage */
 			$content = $page->getContent();
 			$text = ContentHandler::getContentText( $content );
+
 			$page->clear();
-			unset($page);
-			unset($basetitle);
+
+			unset( $page );
+			unset( $basetitle );
 
 			/* translate */
 			$text = self::callTranslation( $out->parseAsContent( $text ), $subpage );
-			if( empty( $text ) ) {
+			if ( !$text ) {
 				return;
 			}
 
@@ -292,19 +277,19 @@ class SubTranslate {
 		/* output translated text */
 		$out->clearHTML();
 		$out->addHTML( $text );
+
 		/* language caption */
-		if( $langtitle ) {
+		if ( $langtitle ) {
 			$out->setPageTitle( $langtitle );
 		}
+
 		/* set robot policy */
-		if( !empty( $wgSubTranslateRobotPolicy ) ) {
+		if ( $wgSubTranslateRobotPolicy ) {
 			/* https://www.mediawiki.org/wiki/Manual:Noindex */
 			$out->setRobotpolicy( $wgSubTranslateRobotPolicy );
 		}
 
 		/* stop to render default message */
 		$outputDone = true;
-
-		return;
 	}
 }
