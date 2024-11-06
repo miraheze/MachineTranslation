@@ -106,7 +106,6 @@ class SubTranslate {
 					'q' => $text,
 				],
 				'headers' => [
-					'Content-Type' => 'application/json',
 					'User-Agent' => 'SubTranslate, MediaWiki extension (https://github.com/miraheze/SubTranslate)',
 				]
 			], [ 'reqTimeout' => $wgSubTranslateTimeout ] );
