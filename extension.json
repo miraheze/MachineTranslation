@@ -20,11 +20,11 @@
 			"i18n"
 		]
 	},
-	"AutoloadClasses": {
-		"SubTranslate": "includes/SubTranslate.php"
+	"AutoloadNamespaces": {
+		"Miraheze\\SubTranslate\\": "includes/"
 	},
 	"Hooks": {
-		"ArticleViewHeader": "SubTranslate::onArticleViewHeader"
+		"ArticleViewHeader": "Miraheze\\SubTranslate\\SubTranslate::onArticleViewHeader"
 	},
 	"manifest_version": 2
 }
