@@ -235,7 +235,7 @@ class SubTranslate {
 					[
 					      'class' => 'targetlang',
 					],
-					'(' . $langcaption . ')'
+					' (' . $langcaption . ')'
 				);
 		}
 
