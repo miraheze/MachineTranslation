@@ -71,7 +71,7 @@ class Hooks {
 	) {
 		$this->httpRequestFactory = $httpRequestFactory;
 		$this->languageNameUtils = $languageNameUtils;
-		$this->objectCacheFactory $objectCacheFactory;
+		$this->objectCacheFactory = $objectCacheFactory;
 		$this->titleFactory = $titleFactory;
 		$this->wikiPageFactory = $wikiPageFactory;
 
