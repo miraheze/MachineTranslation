@@ -1,40 +1,14 @@
 <?php
-/**
- * SubTranslate MediaWiki extension  version 1.0.2
- *	for details please see: https://www.mediawiki.org/wiki/Extension:SubTranslate
- *
- * Copyright (c) 2023 Kimagurenote https://kimagurenote.net/
- * License: Revised BSD license http://opensource.org/licenses/BSD-3-Clause
- *
- * Function:
- *	Mediawiki extension that embed images from cloud storage services.
- *
- * Dependency:
- *	MediaWiki 1.35+
- *	PHP 7.2.0+ - call json_encode() with JSON_INVALID_UTF8_IGNORE
- *	https://www.php.net/manual/ja/json.constants.php
- *
- * History:
- * 2023.09.21 Version 1.0.2
- *	support setRobotpolicy
- * 2023.09.11 Version 1.0.1.2 (testing)
- *	get language caption from MediaWiki\Languages\LanguageNameUtils
- *	https://doc.wikimedia.org/mediawiki-core/master/php/classMediaWiki_1_1Languages_1_1LanguageNameUtils.html#aa253bf7eaeef5428f239ea71e81dbdbe
- * 2023.08.18 Version 1.0.1
- *	support to add language captions in page title <h1>…</h1>
- * 2023.08.17 Version 1.0.0
- *	1st test (support only DeepL)
- *
- * @file
- * @ingroup Extensions
- * @author Kimagurenote
- * @copyright © 2023 Kimagurenote
- * @license The BSD 3-Clause License
- */
 
+namespace Miraheze\SubTranslate;
+
+use Article;
+use ContentHandler;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\Title;
+use ObjectCache;
 
 class SubTranslate {
 
