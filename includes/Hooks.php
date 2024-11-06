@@ -97,7 +97,7 @@ class Hooks {
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->config->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
-			'url' => 'https://trans.zillyhuhn.com/translate',
+			'url' => $this->config->get( 'SubTranslateLibreTranslateUrl' ) . '/translate',
 			'method' => 'POST',
 			'body' => [
 				'source' => 'auto',
