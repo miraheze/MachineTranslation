@@ -5,7 +5,6 @@ namespace Miraheze\LibreTranslate\HookHandlers;
 use Article;
 use MediaWiki\Config\Config;
 use MediaWiki\Config\ConfigFactory;
-use MediaWiki\Deferred\DeferredUpdates;
 use MediaWiki\Html\Html;
 use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Languages\LanguageNameUtils;
@@ -277,25 +276,15 @@ class Main {
 			$text = $content->getText();
 
 			$page->clear();
-
-			DeferredUpdates::addCallableUpdate(
-				function () use ( $cacheKey, $subpage, $out, &$text ) {
-					// Do translation
-					$text = $this->callTranslation( $out->parseAsContent( $text ), $subpage );
-					if ( !$text ) {
-						return;
-					}
-
-					// Store cache if enabled
-					$this->storeCache( $cacheKey, $text );
-				}
-			);
-
-			DeferredUpdates::doUpdates();
-
+		
+			// Do translation
+			$text = $this->callTranslation( $out->parseAsContent( $text ), $subpage );
 			if ( !$text ) {
 				return;
 			}
+
+			// Store cache if enabled
+			$this->storeCache( $cacheKey, $text );
 		}
 
 		// Output translated text
