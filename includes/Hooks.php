@@ -19,41 +19,73 @@ class Hooks {
 
 	private const TARGET_LANGUAGES = [
 		// Accepted language codes and captions
-		// phpcs:disable MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment
-		'BG' => 'български език', /* Bulgarian */
-		'CS' => 'český jazyk', /* Czech */
-		'DA' => 'dansk', /* Danish */
-		'DE' => 'Deutsch', /* German */
-		'EL' => 'ελληνικά', /* Greek */
-		'EN' => 'English', /* English */
-		'EN-GB' => 'British English', /* English (British) */
-		'EN-US' => 'American English', /* English (American) */
-		'ES' => 'español', /* Spanish */
-		'ET' => 'eesti keel', /* Estonian */
-		'FI' => 'suomi', /* Finnish */
-		'FR' => 'français', /* French */
-		'HU' => 'magyar nyelv',	/* Hungarian */
-		'ID' => 'Bahasa Indonesia', /* Indonesian */
-		'IT' => 'italiano', /* Italian */
-		'JA' => '日本語', /* Japanese */
-		'KO' => '한국어', /* Korean */
-		'LT' => 'lietuvių kalba', /* Lithuanian */
-		'LV' => 'latviešu', /* Latvian */
-		'NB' => 'norsk bokmål',	/* Norwegian (Bokmål) */
-		'NL' => 'Dutch', /* Dutch */
-		'PL' => 'polski', /* Polish */
-		'PT' => 'português', /* Portuguese */
-		'PT-BR' => 'português',	/* Portuguese (Brazilian) */
-		'PT-PT' => 'português',	/* Portuguese (all Portuguese varieties excluding Brazilian Portuguese) */
-		'RO' => 'limba română',	/* Romanian */
-		'RU' => 'русский язык',	/* Russian */
-		'SK' => 'slovenčina', /* Slovak */
-		'SL' => 'slovenski jezik', /* Slovenian */
-		'SV' => 'Svenska', /* Swedish */
-		'TR' => 'Türkçe', /* Turkish */
-		'UK' => 'українська мова', /* Ukrainian */
-		'ZH' => '中文', /* Chinese (simplified) */
-		// phpcs:enable
+
+		/** Bulgarian */
+		'BG' => 'български език',
+		/** Czech */
+		'CS' => 'český jazyk',
+		/** Danish */
+		'DA' => 'dansk',
+		/** German */
+		'DE' => 'Deutsch',
+		/** Greek */
+		'EL' => 'ελληνικά',
+		/** English */
+		'EN' => 'English',
+		/** English (British) */
+		'EN-GB' => 'British English',
+		/** English (American) */
+		'EN-US' => 'American English',
+		/** Spanish */
+		'ES' => 'español',
+		/** Estonian */
+		'ET' => 'eesti keel',
+		/** Finnish */
+		'FI' => 'suomi',
+		/** French */
+		'FR' => 'français',
+		/** Hungarian */
+		'HU' => 'magyar nyelv',
+		/** Indonesian */
+		'ID' => 'Bahasa Indonesia',
+		/** Italian */
+		'IT' => 'italiano',
+		/** Japanese */
+		'JA' => '日本語',
+		/** Korean */
+		'KO' => '한국어',
+		/** Lithuanian */
+		'LT' => 'lietuvių kalba',
+		/** Latvian */
+		'LV' => 'latviešu',
+		/** Norwegian (Bokmål) */
+		'NB' => 'norsk bokmål',
+		/** Dutch */
+		'NL' => 'Dutch',
+		/** Polish */
+		'PL' => 'polski',
+		/** Portuguese */
+		'PT' => 'português',
+		/** Portuguese (Brazilian) */
+		'PT-BR' => 'português',
+		/** Portuguese (all other Portuguese variants) */
+		'PT-PT' => 'português',
+		/** Romanian */
+		'RO' => 'limba română',
+		/** Russian */
+		'RU' => 'русский язык',
+		/** Slovak */
+		'SK' => 'slovenčina',
+		/** Slovenian */
+		'SL' => 'slovenski jezik',
+		/** Swedish */
+		'SV' => 'Svenska',
+		/** Turkish */
+		'TR' => 'Türkçe',
+		/** Ukrainian */
+		'UK' => 'українська мова',
+		/** Chinese (simplified) */
+		'ZH' => '中文',
 	];
 
 	private Config $config;
