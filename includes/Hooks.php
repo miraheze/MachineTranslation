@@ -112,9 +112,9 @@ class Hooks {
 		$this->config = $configFactory->makeConfig( 'SubTranslate' );
 	}
 
-	private function callTranslation( string $text, string $tolang ): string {
+	private function callTranslation( string $text, string $targetLanguage ): string {
 		// Check parameters
-		if ( !$text || !$tolang ) {
+		if ( !$text || !$targetLanguage ) {
 			return '';
 		}
 
@@ -123,8 +123,7 @@ class Hooks {
 			return '';
 		}
 
-		// Target language code
-		$tolang = strtolower( $tolang );
+		$targetLanguage = strtolower( $targetLanguage );
 
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
@@ -134,7 +133,7 @@ class Hooks {
 			'method' => 'POST',
 			'body' => [
 				'source' => 'auto',
-				'target' => $tolang,
+				'target' => $targetLanguage,
 				'format' => 'html',
 				'q' => $text,
 			],
@@ -158,7 +157,7 @@ class Hooks {
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'subtranslate', $key );
+		$cacheKey = $cache->makeKey( 'SubTranslate', $key );
 		return $cache->set( $cacheKey, $value, $this->config->get( 'SubTranslateCachingTime' ) );
 	}
 
@@ -168,7 +167,7 @@ class Hooks {
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'subtranslate', $key );
+		$cacheKey = $cache->makeKey( 'SubTranslate', $key );
 
 		if ( $this->config->get( 'SubTranslateCachingTime' ) === 0 ) {
 			$cache->delete( $cacheKey );
