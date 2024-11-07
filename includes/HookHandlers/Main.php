@@ -6,12 +6,14 @@ use Article;
 use JobSpecification;
 use MediaWiki\Config\Config;
 use MediaWiki\Config\ConfigFactory;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
 use MediaWiki\JobQueue\JobQueueGroupFactory;
 use MediaWiki\Languages\LanguageNameUtils;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
+use MessageLocalizer;
 use Miraheze\LibreTranslate\ConfigNames;
 use Miraheze\LibreTranslate\Jobs\LibreTranslateJob;
 use Miraheze\LibreTranslate\Services\LibreTranslateUtils;
@@ -96,6 +98,7 @@ class Main {
 	private JobQueueGroupFactory $jobQueueGroupFactory;
 	private LanguageNameUtils $languageNameUtils;
 	private LibreTranslateUtils $libreTranslateUtils;
+	private MessageLocalizer $messageLocalizer;
 	private TitleFactory $titleFactory;
 	private WikiPageFactory $wikiPageFactory;
 
@@ -114,6 +117,7 @@ class Main {
 		$this->wikiPageFactory = $wikiPageFactory;
 
 		$this->config = $configFactory->makeConfig( 'LibreTranslate' );
+		$this->messageLocalizer = RequestContext::getMain();
 	}
 
 	/**
@@ -233,11 +237,13 @@ class Main {
 					);
 				}
 
-				$text = 'Translation currently processing. Please check back later...';
+				$message = 'libretranslate-processing';
 
 				// Store cache if enabled
-				$this->libreTranslateUtils->storeCache( $cacheKey . '-progress', $text );
-				$text = Html::noticeBox( $text, '' );
+				$this->libreTranslateUtils->storeCache( $cacheKey . '-progress', $message );
+				$text = Html::noticeBox(
+					$this->messageLocalizer->msg( $message )->escaped(), ''
+				);
 			} else {
 				$text = $this->libreTranslateUtils->callTranslation(
 					$out->parseAsContent( $text ),
