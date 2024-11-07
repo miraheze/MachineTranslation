@@ -86,7 +86,11 @@ class Main {
 		/** Ukrainian */
 		'UK' => 'українська мова',
 		/** Chinese (simplified) */
-		'ZH' => '中文',
+		'ZH' => '中文（简体）',
+		/** Chinese (simplified) */
+		'ZH-HANS' => '中文（简体）',
+		/** Chinese (traditional) */
+		'ZH-HANT' => '中文（繁體）',
 	];
 
 	private Config $config;
