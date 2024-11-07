@@ -224,6 +224,8 @@ class Main {
 			return;
 		}
 
+		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . strtoupper( $subpage );
+
 		// Get title text for replace (the base page title + language caption)
 		$languageCaption = ucfirst(
 			$this->languageNameUtils->getLanguageName( $subpage ) ??
@@ -232,12 +234,17 @@ class Main {
 
 		$languageTitle = '';
 		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
-			$baseText = $baseTitle->getTitleValue()->getText();
+			$titleText = $baseTitle->getTitleValue()->getText();
 			if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
-				$baseText = $this->callTranslation( $baseText, $subpage );
+				$titleCacheKey = $cacheKey . '-title';
+				$titleText = $this->getCache( $titleCacheKey );
+				if ( !$titleText ) {
+					$titleText = $this->callTranslation( $titleText, $subpage );
+					$this->storeCache( $titleCacheKey, $titleText );
+				}
 			}
 
-			$languageTitle = ( $baseText ?: $baseTitle->getTitleValue()->getText() ) .
+			$languageTitle = ( $titleText ?: $baseTitle->getTitleValue()->getText() ) .
 				Html::element( 'span',
 					[
 						  'class' => 'target-language',
@@ -254,7 +261,6 @@ class Main {
 		$out = $article->getContext()->getOutput();
 
 		// Get cache if enabled
-		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . strtoupper( $subpage );
 		$text = $this->getCache( $cacheKey );
 
 		// Translate if cache not found
