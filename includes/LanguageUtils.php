@@ -71,6 +71,8 @@ class LanguageUtils {
 		'TR' => 'Türkçe',
 		/** Ukrainian */
 		'UK' => 'українська мова',
+		/** Vietnamese */
+		'VI' => 'Tiếng Việt',
 		/** Chinese (simplified) */
 		'ZH' => '中文',
 		/** Chinese (traditional) */
