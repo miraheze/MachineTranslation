@@ -88,7 +88,7 @@ class Main {
 		/** Chinese (simplified) */
 		'ZH' => '中文',
 		/** Chinese (traditional) */
-		'ZT' => '中文（繁體）',
+		'ZT' => '中文 (繁體)',
 	];
 
 	private Config $config;
