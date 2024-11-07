@@ -291,6 +291,8 @@ class Main {
 				}
 			);
 
+			DeferredUpdates::doUpdates();
+
 			if ( !$text ) {
 				return;
 			}
