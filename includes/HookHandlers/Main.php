@@ -264,7 +264,7 @@ class Main {
 		$out = $article->getContext()->getOutput();
 
 		// Get cache if enabled
-		static::$text = $this->getCache( $cacheKey );
+		static $text = $this->getCache( $cacheKey );
 
 		// Translate if cache not found
 		if ( !static::$text ) {
