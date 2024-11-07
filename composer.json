@@ -3,7 +3,7 @@
 	"type": "mediawiki-extension",
 	"description": "A MediaWiki extension to translate pages using a LibreTranslate instance.",
 	"homepage": "https://github.com/miraheze/SubTranslate",
-	"license": "BSD-3-Clause",
+	"license": "GPL-3.0-or-later",
 	"authors": [
 		{
 			"name": "Universal Omega"
