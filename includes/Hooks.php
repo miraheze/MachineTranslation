@@ -232,7 +232,7 @@ class Hooks {
 
 		$languageTitle = '';
 		if ( !$this->config->get( 'SubTranslateSuppressLanguageCaption' ) ) {
-			$languageTitle = $basetitle->getTitleValue()->getText() .
+			$languageTitle = $baseTitle->getTitleValue()->getText() .
 				Html::element( 'span',
 					[
 						  'class' => 'targetlang',
