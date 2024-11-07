@@ -19,38 +19,38 @@ class Hooks {
 
 	/* accepted language codes and captions */
 	private static $targetLangs = [
-		'BG' => 'български език',	/* Bulgarian */
-		'CS' => 'český jazyk',	/* Czech */
-		'DA' => 'dansk',	/* Danish */
-		'DE' => 'Deutsch',	/* German */
+		'BG' => 'български език', /* Bulgarian */
+		'CS' => 'český jazyk', /* Czech */
+		'DA' => 'dansk', /* Danish */
+		'DE' => 'Deutsch', /* German */
 		'EL' => 'ελληνικά',	/* Greek */
-		'EN' => 'English',	/* English */	/* unspecified variant for backward compatibility; please select EN-GB or EN-US instead */
-		'EN-GB' => 'British English',	/* English (British) */
-		'EN-US' => 'American English',	/* English (American) */
-		'ES' => 'español',	/* Spanish */
-		'ET' => 'eesti keel',	/* Estonian */
-		'FI' => 'suomi',	/* Finnish */
+		'EN' => 'English', /* English */	/* unspecified variant for backward compatibility; please select EN-GB or EN-US instead */
+		'EN-GB' => 'British English', /* English (British) */
+		'EN-US' => 'American English', /* English (American) */
+		'ES' => 'español', /* Spanish */
+		'ET' => 'eesti keel', /* Estonian */
+		'FI' => 'suomi', /* Finnish */
 		'FR' => 'français',	/* French */
 		'HU' => 'magyar nyelv',	/* Hungarian */
 		'ID' => 'Bahasa Indonesia',	/* Indonesian */
 		'IT' => 'italiano',	/* Italian */
-		'JA' => '日本語',	/* Japanese */
-		'KO' => '한국어',	/* Korean */
-		'LT' => 'lietuvių kalba',	/* Lithuanian */
+		'JA' => '日本語', /* Japanese */
+		'KO' => '한국어', /* Korean */
+		'LT' => 'lietuvių kalba', /* Lithuanian */
 		'LV' => 'latviešu',	/* Latvian */
 		'NB' => 'norsk bokmål',	/* Norwegian (Bokmål) */
-		'NL' => 'Dutch',	/* Dutch */
-		'PL' => 'polski',	/* Polish */
-		'PT' => 'português',	/* Portuguese */	/* unspecified variant for backward compatibility; please select PT-BR or PT-PT instead */
+		'NL' => 'Dutch', /* Dutch */
+		'PL' => 'polski', /* Polish */
+		'PT' => 'português', /* Portuguese */	/* unspecified variant for backward compatibility; please select PT-BR or PT-PT instead */
 		'PT-BR' => 'português',	/* Portuguese (Brazilian) */
 		'PT-PT' => 'português',	/* Portuguese (all Portuguese varieties excluding Brazilian Portuguese) */
 		'RO' => 'limba română',	/* Romanian */
 		'RU' => 'русский язык',	/* Russian */
-		'SK' => 'slovenčina',	/* Slovak */
-		'SL' => 'slovenski jezik',	/* Slovenian */
-		'SV' => 'Svenska',	/* Swedish */
-		'TR' => 'Türkçe',	/* Turkish */
-		'UK' => 'українська мова',	/* Ukrainian */
+		'SK' => 'slovenčina', /* Slovak */
+		'SL' => 'slovenski jezik', /* Slovenian */
+		'SV' => 'Svenska', /* Swedish */
+		'TR' => 'Türkçe', /* Turkish */
+		'UK' => 'українська мова', /* Ukrainian */
 		'ZH' => '中文'	/* Chinese (simplified) */
 	];
 
@@ -78,13 +78,12 @@ class Hooks {
 		$this->config = $configFactory->makeConfig( 'SubTranslate' );
 	}
 
-
 	private function callTranslation( string $text, string $tolang ): string {
 		/* parameter check */
 		if ( !$text || !$tolang ) {
 			return '';
 		}
-		
+
 		if ( strlen( $text ) > 131072 ) {
 			/* encode error or content length over 128KiB */
 			return '';
@@ -139,7 +138,6 @@ class Hooks {
 		return $cache->set( $cachekey, $value, $this->config->get( 'SubTranslateCachingTime' ) );
 	}
 
-
 	/**
 	 * get cached data from MediaWiki ObjectCache mechanism
 	 * https://www.mediawiki.org/wiki/Object_cache
@@ -164,7 +162,6 @@ class Hooks {
 
 		return $cache->get( $cacheKey );
 	}
-
 
 	/**
 	 * https://www.mediawiki.org/wiki/Manual:Hooks/ArticleViewHeader
@@ -224,7 +221,7 @@ class Hooks {
 			$langtitle = $basetitle->getTitleValue()->getText() .
 				Html::element( 'span',
 					[
-					      'class' => 'targetlang',
+						  'class' => 'targetlang',
 					],
 					' (' . $langcaption . ')'
 				);
@@ -260,7 +257,7 @@ class Hooks {
 			}
 
 			/* store cache if enabled */
-	 		self::storeCache( $cachekey, $text );
+			self::storeCache( $cachekey, $text );
 		}
 
 		/* output translated text */
