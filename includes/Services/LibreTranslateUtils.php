@@ -98,4 +98,15 @@ class LibreTranslateUtils {
 
 		return $cache->get( $cacheKey );
 	}
+
+	public function deleteCache( string $key ): void {
+		if ( !$this->options->get( ConfigNames::Caching ) ) {
+			return;
+		}
+
+		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
+		$cacheKey = $cache->makeKey( 'LibreTranslate', $key );
+
+		$cache->delete( $cacheKey );
+	}
 }
