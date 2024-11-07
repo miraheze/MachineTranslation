@@ -233,10 +233,11 @@ class Main {
 					);
 				}
 
-				$text = 'Translation currently processing';
+				$text = 'Translation currently processing. Please check back later...';
 
 				// Store cache if enabled
 				$this->libreTranslateUtils->storeCache( $cacheKey . '-progress', $text );
+				$text = Html::noticeBox( $text, '' );
 			} else {
 				$text = $this->libreTranslateUtils->callTranslation(
 					$out->parseAsContent( $text ),
