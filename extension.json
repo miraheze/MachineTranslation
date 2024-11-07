@@ -51,13 +51,13 @@
 			"description": "String. URL of the LibreTranslate instance to use.",
 			"value": "https://trans.zillyhuhn.com"
 		},
-		"SubTranslateSuppressLanguageCaption": {
-			"description": "Boolean. Whether to suppress (disable) the language caption on translation subpages.",
-			"value": false
-		},
 		"SubTranslateRobotPolicy": {
 			"description": "String. The robot policy to use for translation subpages.",
 			"value": ""
+		},
+		"SubTranslateSuppressLanguageCaption": {
+			"description": "Boolean. Whether to suppress (disable) the language caption on translation subpages.",
+			"value": false
 		},
 		"SubTranslateTimeout": {
 			"description": "Integer. The time in seconds before connecting to the LibreTranslate instance will timeout.",
