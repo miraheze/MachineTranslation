@@ -82,6 +82,6 @@ class LanguageUtils {
 	}
 
 	public static function isValidLanguageCode( string $code ): bool {
-		return (bool)preg_match( '/^[A-Za-z][A-Za-z](\-[A-Za-z][A-Za-z])?$/', $code );
+		return (bool)preg_match( '/^[A-Za-z][A-Za-z]$/', $code );
 	}
 }
