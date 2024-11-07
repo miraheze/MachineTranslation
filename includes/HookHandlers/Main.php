@@ -1,6 +1,6 @@
 <?php
 
-namespace Miraheze\SubTranslate;
+namespace Miraheze\SubTranslate\HookHandlers;
 
 use Article;
 use MediaWiki\Config\Config;
@@ -12,10 +12,11 @@ use MediaWiki\MainConfigNames;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
+use Miraheze\SubTranslate\ConfigNames;
 use ObjectCacheFactory;
 use TextContent;
 
-class Hooks {
+class Main {
 
 	private const TARGET_LANGUAGES = [
 		// Accepted language codes and captions
@@ -129,7 +130,7 @@ class Hooks {
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->config->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
-			'url' => $this->config->get( 'SubTranslateLibreTranslateUrl' ) . '/translate',
+			'url' => $this->config->get( ConfigNames::LibreTranslateUrl ) . '/translate',
 			'method' => 'POST',
 			'body' => [
 				'source' => 'auto',
@@ -140,7 +141,7 @@ class Hooks {
 			'headers' => [
 				'User-Agent' => 'SubTranslate, MediaWiki extension (https://github.com/miraheze/SubTranslate)',
 			]
-		], [ 'reqTimeout' => $this->config->get( 'SubTranslateTimeout' ) ] );
+		], [ 'reqTimeout' => $this->config->get( ConfigNames::Timeout ) ] );
 
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
@@ -152,24 +153,24 @@ class Hooks {
 	}
 
 	private function storeCache( string $key, string $value ): bool {
-		if ( !$this->config->get( 'SubTranslateCaching' ) ) {
+		if ( !$this->config->get( ConfigNames::Caching ) ) {
 			return false;
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
 		$cacheKey = $cache->makeKey( 'SubTranslate', $key );
-		return $cache->set( $cacheKey, $value, $this->config->get( 'SubTranslateCachingTime' ) );
+		return $cache->set( $cacheKey, $value, $this->config->get( ConfigNames::CachingTime ) );
 	}
 
 	private function getCache( string $key ): bool|string {
-		if ( !$this->config->get( 'SubTranslateCaching' ) ) {
+		if ( !$this->config->get( ConfigNames::Caching ) ) {
 			return false;
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
 		$cacheKey = $cache->makeKey( 'SubTranslate', $key );
 
-		if ( $this->config->get( 'SubTranslateCachingTime' ) === 0 ) {
+		if ( $this->config->get( ConfigNames::CachingTime ) === 0 ) {
 			$cache->delete( $cacheKey );
 			return false;
 		}
@@ -230,11 +231,11 @@ class Hooks {
 		);
 
 		$languageTitle = '';
-		if ( !$this->config->get( 'SubTranslateSuppressLanguageCaption' ) ) {
+		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
 			$languageTitle = $baseTitle->getTitleValue()->getText() .
 				Html::element( 'span',
 					[
-						  'class' => 'targetlang',
+						  'class' => 'target-language',
 					],
 					' (' . $languageCaption . ')'
 				);
@@ -286,8 +287,8 @@ class Hooks {
 		}
 
 		// Set robot policy
-		if ( $this->config->get( 'SubTranslateRobotPolicy' ) ) {
-			$out->setRobotPolicy( $this->config->get( 'SubTranslateRobotPolicy' ) );
+		if ( $this->config->get( ConfigNames::RobotPolicy ) ) {
+			$out->setRobotPolicy( $this->config->get( ConfigNames::RobotPolicy ) );
 		}
 
 		// Stop to render default message
