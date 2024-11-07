@@ -71,5 +71,8 @@
 	"ConfigRegistry": {
 		"LibreTranslate": "MediaWiki\\Config\\GlobalVarConfig::newInstance"
 	},
+	"ServiceWiringFiles": [
+		"includes/ServiceWiring.php"
+	],
 	"manifest_version": 2
 }
