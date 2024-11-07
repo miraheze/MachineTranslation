@@ -66,7 +66,7 @@
 		},
 		"LibreTranslateTimeout": {
 			"description": "Integer. The time in seconds before connecting to the LibreTranslate instance will timeout.",
-			"value": 60
+			"value": 86400
 		},
 		"LibreTranslateTranslateTitle": {
 			"description": "Boolean. Whether to also translate the page title. This will create an extra request to the translation API.",
@@ -78,7 +78,7 @@
 		},
 		"LibreTranslateUseJob": {
 			"description": "Boolean. Whether to use a job for processing translations.",
-			"value": false
+			"value": true
 		}
 	},
 	"ConfigRegistry": {
