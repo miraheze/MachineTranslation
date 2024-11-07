@@ -52,7 +52,8 @@ class LibreTranslateJob extends Job {
 		// Store cache if enabled
 		$this->libreTranslateUtils->storeCache( $this->cacheKey, $translatedText );
 
-		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
+		$hasCaption = !$this->config->get( ConfigNames::SuppressLanguageCaption );
+		if ( $hasCaption && $this->config->get( ConfigNames::TranslateTitle ) ) {
 			$titleCacheKey = $this->cacheKey . '-title';
 			$titleText = $this->libreTranslateUtils->getCache( $titleCacheKey );
 			if ( !$titleText ) {
