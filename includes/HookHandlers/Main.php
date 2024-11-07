@@ -237,7 +237,7 @@ class Main {
 				$baseText = $this->callTranslation( $baseText, $subpage );
 			}
 
-			$languageTitle = $baseText ?: $baseTitle->getTitleValue()->getText() .
+			$languageTitle = ( $baseText ?: $baseTitle->getTitleValue()->getText() ) .
 				Html::element( 'span',
 					[
 						  'class' => 'target-language',
