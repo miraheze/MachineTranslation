@@ -6,14 +6,12 @@ use Article;
 use MediaWiki\Config\Config;
 use MediaWiki\Config\ConfigFactory;
 use MediaWiki\Html\Html;
-use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Languages\LanguageNameUtils;
-use MediaWiki\MainConfigNames;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
 use Miraheze\LibreTranslate\ConfigNames;
-use ObjectCacheFactory;
+use Miraheze\LibreTranslate\Services\LibreTranslateUtils;
 use TextContent;
 
 class Main {
@@ -92,92 +90,24 @@ class Main {
 	];
 
 	private Config $config;
-	private HttpRequestFactory $httpRequestFactory;
 	private LanguageNameUtils $languageNameUtils;
-	private ObjectCacheFactory $objectCacheFactory;
+	private LibreTranslateUtils $libreTranslateUtils;
 	private TitleFactory $titleFactory;
 	private WikiPageFactory $wikiPageFactory;
 
 	public function __construct(
 		ConfigFactory $configFactory,
-		HttpRequestFactory $httpRequestFactory,
 		LanguageNameUtils $languageNameUtils,
-		ObjectCacheFactory $objectCacheFactory,
+		LibreTranslateUtils $libreTranslateUtils,
 		TitleFactory $titleFactory,
 		WikiPageFactory $wikiPageFactory
 	) {
-		$this->httpRequestFactory = $httpRequestFactory;
 		$this->languageNameUtils = $languageNameUtils;
-		$this->objectCacheFactory = $objectCacheFactory;
+		$this->libreTranslateUtils = $libreTranslateUtils;
 		$this->titleFactory = $titleFactory;
 		$this->wikiPageFactory = $wikiPageFactory;
 
 		$this->config = $configFactory->makeConfig( 'LibreTranslate' );
-	}
-
-	private function callTranslation( string $text, string $targetLanguage ): string {
-		// Check parameters
-		if ( !$text || !$targetLanguage ) {
-			return '';
-		}
-
-		if ( strlen( $text ) > 131072 ) {
-			// Exit if content length is over 128KiB
-			return '';
-		}
-
-		$targetLanguage = strtolower( $targetLanguage );
-
-		// Call API
-		$request = $this->httpRequestFactory->createMultiClient(
-			[ 'proxy' => $this->config->get( MainConfigNames::HTTPProxy ) ]
-		)->run( [
-			'url' => $this->config->get( ConfigNames::Url ) . '/translate',
-			'method' => 'POST',
-			'body' => [
-				'source' => 'auto',
-				'target' => $targetLanguage,
-				'format' => 'html',
-				'q' => $text,
-			],
-			'headers' => [
-				'User-Agent' => 'LibreTranslate MediaWiki extension (https://github.com/miraheze/LibreTranslate)',
-			]
-		], [ 'reqTimeout' => $this->config->get( ConfigNames::Timeout ) ] );
-
-		// Check if the HTTP response code is returning 200
-		if ( $request['code'] !== 200 ) {
-			return '';
-		}
-
-		$json = json_decode( $request['body'], true );
-		return $json['translatedText'] ?? '';
-	}
-
-	private function storeCache( string $key, string $value ): bool {
-		if ( !$this->config->get( ConfigNames::Caching ) ) {
-			return false;
-		}
-
-		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'LibreTranslate', $key );
-		return $cache->set( $cacheKey, $value, $this->config->get( ConfigNames::CachingTime ) );
-	}
-
-	private function getCache( string $key ): bool|string {
-		if ( !$this->config->get( ConfigNames::Caching ) ) {
-			return false;
-		}
-
-		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'LibreTranslate', $key );
-
-		if ( $this->config->get( ConfigNames::CachingTime ) === 0 ) {
-			$cache->delete( $cacheKey );
-			return false;
-		}
-
-		return $cache->get( $cacheKey );
 	}
 
 	/**
@@ -241,8 +171,12 @@ class Main {
 				$titleCacheKey = $cacheKey . '-title';
 				$titleText = $this->getCache( $titleCacheKey );
 				if ( !$titleText ) {
-					$titleText = $this->callTranslation( $baseTitle->getTitleValue()->getText(), $subpage );
-					$this->storeCache( $titleCacheKey, $titleText );
+					$titleText = $this->libreTranslateUtils->callTranslation(
+						$baseTitle->getTitleValue()->getText(),
+						$subpage
+					);
+
+					$this->libreTranslateUtils->storeCache( $titleCacheKey, $titleText );
 				}
 			}
 
@@ -263,7 +197,7 @@ class Main {
 		$out = $article->getContext()->getOutput();
 
 		// Get cache if enabled
-		$text = $this->getCache( $cacheKey );
+		$text = $this->libreTranslateUtils->getCache( $cacheKey );
 
 		// Translate if cache not found
 		if ( !$text ) {
@@ -278,13 +212,17 @@ class Main {
 			$page->clear();
 
 			// Do translation
-			$text = $this->callTranslation( $out->parseAsContent( $text ), $subpage );
+			$text = $this->libreTranslateUtils->callTranslation(
+				$out->parseAsContent( $text ),
+				$subpage
+			);
+
 			if ( !$text ) {
 				return;
 			}
 
 			// Store cache if enabled
-			$this->storeCache( $cacheKey, $text );
+			$this->libreTranslateUtils->storeCache( $cacheKey, $text );
 		}
 
 		// Output translated text
