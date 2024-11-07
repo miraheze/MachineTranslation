@@ -219,17 +219,19 @@ class Main {
 
 			// Do translation
 			if ( $this->config->get( ConfigNames::UseJob ) ) {
-				$jobQueueGroup = $this->jobQueueGroupFactory->makeJobQueueGroup();
-				$jobQueueGroup->push(
-					new JobSpecification(
-						LibreTranslateJob::JOB_NAME,
-						[
-							'cachekey' => $cacheKey,
-							'content' => $out->parseAsContent( $text ),
-							'subpage' => $subpage,
-						]
-					)
-				);
+				if ( !$this->libreTranslateUtils->getCache( $cacheKey . '-progress' ) ) {
+					$jobQueueGroup = $this->jobQueueGroupFactory->makeJobQueueGroup();
+					$jobQueueGroup->push(
+						new JobSpecification(
+							LibreTranslateJob::JOB_NAME,
+							[
+								'cachekey' => $cacheKey,
+								'content' => $out->parseAsContent( $text ),
+								'subpage' => $subpage,
+							]
+						)
+					);
+				}
 
 				$text = 'Translation currently processing';
 
