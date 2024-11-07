@@ -4,6 +4,7 @@ namespace Miraheze\LibreTranslate\Services;
 
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Http\HttpRequestFactory;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use Miraheze\LibreTranslate\ConfigNames;
 use ObjectCacheFactory;
@@ -66,6 +67,13 @@ class LibreTranslateUtils {
 
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
+			LoggerFactory::newInstance( 'LibreTranslate' )->error(
+				'Request to the LibreTranslate instance returned {code}: {reason}',
+				[
+					'code' => $request['code'],
+					'reason' => $request['reason'],
+				]
+			);
 			return '';
 		}
 
