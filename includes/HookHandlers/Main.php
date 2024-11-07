@@ -264,37 +264,41 @@ class Main {
 		$out = $article->getContext()->getOutput();
 
 		// Get cache if enabled
-		static $text = $this->getCache( $cacheKey );
+		$text = $this->getCache( $cacheKey );
 
 		// Translate if cache not found
-		if ( !static::$text ) {
+		if ( !$text ) {
 			// Get content of the base page
 			$content = $page->getContent();
 			if ( !( $content instanceof TextContent ) ) {
 				return;
 			}
 
-			static::$text = $content->getText();
+			$text = $content->getText();
 
 			$page->clear();
 
 			DeferredUpdates::addCallableUpdate(
-				function () use ( $cacheKey, $subpage, $out ) {
+				function () use ( $cacheKey, $subpage, $out, &$text ) {
 					// Do translation
-					static::$text = $this->callTranslation( $out->parseAsContent( static::$text ), $subpage );
+					$text = $this->callTranslation( $out->parseAsContent( $text ), $subpage );
 					if ( !$text ) {
 						return;
 					}
 
 					// Store cache if enabled
-					$this->storeCache( $cacheKey, static::$text );
+					$this->storeCache( $cacheKey, $text );
 				}
 			);
+
+			if ( !$text ) {
+				return;
+			}
 		}
 
 		// Output translated text
 		$out->clearHTML();
-		$out->addHTML( static::$text );
+		$out->addHTML( $text );
 
 		// Language caption
 		if ( $languageTitle ) {
