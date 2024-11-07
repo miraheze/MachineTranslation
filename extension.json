@@ -22,12 +22,12 @@
 	},
 	"Hooks": {
 		"ArticleViewHeader": {
-			"handler": "Hooks"
+			"handler": "Main"
 		}
 	},
 	"HookHandlers": {
-		"Hooks": {
-			"class": "Miraheze\\SubTranslate\\Hooks",
+		"Main": {
+			"class": "Miraheze\\SubTranslate\\HookHandlers\\Main",
 			"services": [
 				"ConfigFactory",
 				"HttpRequestFactory",
