@@ -62,6 +62,10 @@
 		"SubTranslateTimeout": {
 			"description": "Integer. The time in seconds before connecting to the LibreTranslate instance will timeout.",
 			"value": 60
+		},
+		"SubTranslateTranslateTitle": {
+			"description": "Boolean. Whether to also translate the page title. This will create an extra request to the translation API.",
+			"value": true
 		}
 	},
 	"ConfigRegistry": {
