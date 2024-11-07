@@ -4,5 +4,6 @@
 			"Universal Omega"
 		]
 	},
-	"libretranslate-desc": "{{desc|name=LibreTranslate|url=https://github.com/miraheze/LibreTranslate}}"
+	"libretranslate-desc": "{{desc|name=LibreTranslate|url=https://github.com/miraheze/LibreTranslate}}",
+	"libretranslate-processing": "Message displayed when the LibreTranslate job is still processing the translation"
 }
