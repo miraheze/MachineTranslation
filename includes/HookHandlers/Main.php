@@ -232,7 +232,12 @@ class Main {
 
 		$languageTitle = '';
 		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
-			$languageTitle = $baseTitle->getTitleValue()->getText() .
+			$baseText = $baseTitle->getTitleValue()->getText();
+			if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
+				$baseText = $this->callTranslation( $baseText, $subpage );
+			}
+
+			$languageTitle = $baseText ?: $baseTitle->getTitleValue()->getText() .
 				Html::element( 'span',
 					[
 						  'class' => 'target-language',
