@@ -81,20 +81,20 @@ class Hooks {
 	}
 
 	private function callTranslation( string $text, string $tolang ): string {
-		/* parameter check */
+		// Check parameters
 		if ( !$text || !$tolang ) {
 			return '';
 		}
 
 		if ( strlen( $text ) > 131072 ) {
-			/* encode error or content length over 128KiB */
+			// Exit if content length is over 128KiB
 			return '';
 		}
 
-		/* target language code */
+		// Target language code
 		$tolang = strtolower( $tolang );
 
-		/* call API */
+		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->config->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
@@ -111,7 +111,7 @@ class Hooks {
 			]
 		], [ 'reqTimeout' => $this->config->get( 'SubTranslateTimeout' ) ] );
 
-		/* status here refers to the HTTP response code */
+		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			return '';
 		}
@@ -120,35 +120,16 @@ class Hooks {
 		return $json['translatedText'] ?? '';
 	}
 
-	/**
-	 * store cache data in MediaWiki ObjectCache mechanism
-	 * https://www.mediawiki.org/wiki/Object_cache
-	 * https://doc.wikimedia.org/mediawiki-core/master/php/classObjectCache.html
-	 * https://doc.wikimedia.org/mediawiki-core/master/php/classBagOStuff.html
-	 *
-	 * @param string $key
-	 * @param string $value
-	 * @return bool Success
-	 */
 	private function storeCache( string $key, string $value ): bool {
 		if ( !$this->config->get( 'SubTranslateCaching' ) ) {
 			return false;
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cachekey = $cache->makeKey( 'subtranslate', $key );
-		return $cache->set( $cachekey, $value, $this->config->get( 'SubTranslateCachingTime' ) );
+		$cacheKey = $cache->makeKey( 'subtranslate', $key );
+		return $cache->set( $cacheKey, $value, $this->config->get( 'SubTranslateCachingTime' ) );
 	}
 
-	/**
-	 * get cached data from MediaWiki ObjectCache mechanism
-	 * https://www.mediawiki.org/wiki/Object_cache
-	 * https://doc.wikimedia.org/mediawiki-core/master/php/classObjectCache.html
-	 * https://doc.wikimedia.org/mediawiki-core/master/php/classBagOStuff.html
-	 *
-	 * @param string $key
-	 * @return bool|string
-	 */
 	private function getCache( string $key ): bool|string {
 		if ( !$this->config->get( 'SubTranslateCaching' ) ) {
 			return false;
@@ -173,80 +154,75 @@ class Hooks {
 	 * @param bool &$pcache
 	 */
 	public function onArticleViewHeader( $article, &$outputDone, &$pcache ) {
-		/* use parser cache */
+		// Use parser cache
 		$pcache = true;
 
-		/* not change if (sub)page is exist */
+		// Do not change if the (sub)page actually exists */
 		if ( $article->getPage()->exists() ) {
 			return;
 		}
 
 		$title = $article->getTitle();
-		$ns = $title->getNamespace();
 
-		/* check namespace */
+		// Check if it is a content namespace
 		if ( !$title->isContentPage() ) {
 			return;
 		}
 
-		/* get title text */
-		$fullpage = $title->getFullText();
 		$basepage = $title->getBaseText();
 		$subpage = $title->getSubpageText();
 
-		/* not subpage if same $basepage as $subpage */
+		// Not subpage if the $basepage is the same as $subpage
 		if ( strcmp( $basepage, $subpage ) === 0 ) {
 			return;
 		}
 
-		/* language code check */
+		// Language code check
 		if ( !preg_match( '/^[A-Za-z][A-Za-z](\-[A-Za-z][A-Za-z])?$/', $subpage ) ) {
 			return;
 		}
 
-		/* accept language? */
+		// Accept language?
 		if ( !array_key_exists( strtoupper( $subpage ), self::TARGET_LANGUAGES ) ) {
 			return;
 		}
 
-		/* create new Title from basepagename */
-		$basetitle = $this->titleFactory->newFromText( $basepage, $ns );
-		if ( $basetitle === null || !$basetitle->exists() ) {
+		$baseTitle = $this->titleFactory->newFromText( $basepage, $title->getNamespace() );
+		if ( $baseTitle === null || !$baseTitle->exists() ) {
 			return;
 		}
 
-		/* get title text for replace (basepage title + language caption ) */
-		$langcaption = ucfirst(
+		// Get title text for replace (the base page title + language caption)
+		$languageCaption = ucfirst(
 			$this->languageNameUtils->getLanguageName( $subpage ) ??
 			self::TARGET_LANGUAGES[ strtoupper( $subpage ) ]
 		);
 
-		$langtitle = '';
+		$languageTitle = '';
 		if ( !$this->config->get( 'SubTranslateSuppressLanguageCaption' ) ) {
-			$langtitle = $basetitle->getTitleValue()->getText() .
+			$languageTitle = $basetitle->getTitleValue()->getText() .
 				Html::element( 'span',
 					[
 						  'class' => 'targetlang',
 					],
-					' (' . $langcaption . ')'
+					' (' . $languageCaption . ')'
 				);
 		}
 
-		/* create WikiPage of basepage */
-		$page = $this->wikiPageFactory->newFromTitle( $basetitle );
+		$page = $this->wikiPageFactory->newFromTitle( $baseTitle );
 		if ( !$page->exists() ) {
 			return;
 		}
 
 		$out = $article->getContext()->getOutput();
 
-		/* get cache if enabled */
-		$cachekey = $basetitle->getArticleID() . '-' . $basetitle->getLatestRevID() . '-' . strtoupper( $subpage );
-		$text = $this->getCache( $cachekey );
+		// Get cache if enabled
+		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . strtoupper( $subpage );
+		$text = $this->getCache( $cacheKey );
 
-		/* translate if cache not found */
+		// Translate if cache not found
 		if ( !$text ) {
-			/* get content of basepage */
+			// Get content of the base page
 			$content = $page->getContent();
 			if ( !( $content instanceof TextContent ) ) {
 				return;
@@ -257,34 +233,33 @@ class Hooks {
 			$page->clear();
 
 			unset( $page );
-			unset( $basetitle );
+			unset( $baseTitle );
 
-			/* translate */
+			// Do translation
 			$text = $this->callTranslation( $out->parseAsContent( $text ), $subpage );
 			if ( !$text ) {
 				return;
 			}
 
-			/* store cache if enabled */
-			$this->storeCache( $cachekey, $text );
+			// Store cache if enabled
+			$this->storeCache( $cacheKey, $text );
 		}
 
-		/* output translated text */
+		// Output translated text
 		$out->clearHTML();
 		$out->addHTML( $text );
 
-		/* language caption */
-		if ( $langtitle ) {
-			$out->setPageTitle( $langtitle );
+		// Language caption
+		if ( $languageTitle ) {
+			$out->setPageTitle( $languageTitle );
 		}
 
-		/* set robot policy */
+		// Set robot policy
 		if ( $this->config->get( 'SubTranslateRobotPolicy' ) ) {
-			/* https://www.mediawiki.org/wiki/Manual:Noindex */
 			$out->setRobotPolicy( $this->config->get( 'SubTranslateRobotPolicy' ) );
 		}
 
-		/* stop to render default message */
+		// Stop to render default message
 		$outputDone = true;
 	}
 }
