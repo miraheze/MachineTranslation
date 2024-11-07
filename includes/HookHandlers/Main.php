@@ -108,7 +108,7 @@ class Main {
 			if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 				$titleCacheKey = $cacheKey . '-title';
 				$titleText = $this->libreTranslateUtils->getCache( $titleCacheKey );
-				if ( !$titleText ) {
+				if ( !$titleText && !$this->config->get( ConfigNames::UseJob ) ) {
 					$titleText = $this->libreTranslateUtils->callTranslation(
 						$baseTitle->getTitleValue()->getText(),
 						$subpage
@@ -160,6 +160,7 @@ class Main {
 								'cachekey' => $cacheKey,
 								'content' => $out->parseAsContent( $text ),
 								'subpage' => $subpage,
+								'titletext' => $baseTitle->getTitleValue()->getText(),
 							]
 						)
 					);
