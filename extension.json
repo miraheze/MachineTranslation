@@ -20,6 +20,15 @@
 	"AutoloadNamespaces": {
 		"Miraheze\\LibreTranslate\\": "includes/"
 	},
+	"JobClasses": {
+		"LibreTranslateJob": {
+			"class": "Miraheze\\LibreTranslate\\Jobs\\LibreTranslateJob",
+			"services": [
+				"LibreTranslateUtils"
+			],
+			"needsPage": false
+		}
+	},
 	"Hooks": {
 		"ArticleViewHeader": {
 			"handler": "Main"
