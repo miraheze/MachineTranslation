@@ -39,6 +39,7 @@
 			"class": "Miraheze\\LibreTranslate\\HookHandlers\\Main",
 			"services": [
 				"ConfigFactory",
+				"JobQueueGroupFactory",
 				"LanguageNameUtils",
 				"LibreTranslateUtils",
 				"TitleFactory",
@@ -74,6 +75,10 @@
 		"LibreTranslateUrl": {
 			"description": "String. URL of the LibreTranslate instance to use.",
 			"value": "https://trans.zillyhuhn.com"
+		},
+		"LibreTranslateUseJob": {
+			"description": "Boolean. Whether to use a job for processing translations.",
+			"value": false
 		}
 	},
 	"ConfigRegistry": {
