@@ -1,9 +1,9 @@
 {
 	"name": "LibreTranslate",
-	"version": "1.0.0",
 	"author": "Universal Omega",
 	"url": "https://github.com/miraheze/LibreTranslate",
 	"descriptionmsg": "libretranslate-desc",
+	"namemsg": "libretranslate-extensionname",
 	"license-name": "GPL-3.0-or-later",
 	"type": "interface",
 	"requires": {
