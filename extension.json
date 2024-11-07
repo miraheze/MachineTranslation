@@ -66,10 +66,6 @@
 		"LibreTranslateUrl": {
 			"description": "String. URL of the LibreTranslate instance to use.",
 			"value": "https://trans.zillyhuhn.com"
-		},
-		"LibreTranslateUseParserOutput": {
-			"description": "Boolean. Experimental config to use ParserOutput to pass the actual HTML output to LibreTranslate. This can have serious unintended side effects.",
-			"value": false
 		}
 	},
 	"ConfigRegistry": {
