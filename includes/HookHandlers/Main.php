@@ -135,7 +135,8 @@ class Main {
 		$out = $article->getContext()->getOutput();
 
 		// Get cache if enabled
-		$text = $this->libreTranslateUtils->getCache( $cacheKey );
+		$contentCache = $this->libreTranslateUtils->getCache( $cacheKey );
+		$text = $contentCache;
 
 		$titleTextCache = $this->libreTranslateUtils->getCache( $cacheKey . '-title' );
 		$needsTitleText = !$titleTextCache && !$this->config->get( ConfigNames::SuppressLanguageCaption ) &&
@@ -143,7 +144,7 @@ class Main {
 			$this->config->get( ConfigNames::UseJob );
 
 		// Translate if cache not found
-		if ( !$text || $needsTitleText ) {
+		if ( !$contentCache || $needsTitleText ) {
 			// Get content of the base page
 			$content = $page->getContent();
 			if ( !( $content instanceof TextContent ) ) {
@@ -171,13 +172,15 @@ class Main {
 					);
 				}
 
-				$message = 'libretranslate-processing';
+				if ( !$contentCache ) {
+					$message = 'libretranslate-processing';
 
-				// Store cache if enabled
-				$this->libreTranslateUtils->storeCache( $cacheKey . '-progress', $message );
-				$text = Html::noticeBox(
-					$this->messageLocalizer->msg( $message )->escaped(), ''
-				);
+					// Store cache if enabled
+					$this->libreTranslateUtils->storeCache( $cacheKey . '-progress', $message );
+					$text = Html::noticeBox(
+						$this->messageLocalizer->msg( $message )->escaped(), ''
+					);
+				}
 			} else {
 				$text = $this->libreTranslateUtils->callTranslation(
 					$out->parseAsContent( $text ),
