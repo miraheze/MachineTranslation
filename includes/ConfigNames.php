@@ -20,4 +20,6 @@ class ConfigNames {
 	public const SuppressLanguageCaption = 'SubTranslateSuppressLanguageCaption';
 
 	public const Timeout = 'SubTranslateTimeout';
+
+	public const TranslateTitle = 'SubTranslateTranslateTitle';
 }
