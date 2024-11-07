@@ -43,6 +43,12 @@ class LibreTranslateUtils {
 
 		if ( strlen( $text ) > 131072 ) {
 			// Exit if content length is over 128KiB
+			LoggerFactory::getInstance( 'LibreTranslate' )->error(
+				'Text to large to translate with LibreTranslate. Length: {length}',
+				[
+					'length' => strlen( $text ),
+				]
+			);
 			return '';
 		}
 
@@ -61,7 +67,7 @@ class LibreTranslateUtils {
 				'q' => $text,
 			],
 			'headers' => [
-				'User-Agent' => 'LibreTranslate MediaWiki extension (https://github.com/miraheze/LibreTranslate)',
+				'user-agent' => 'LibreTranslate MediaWiki extension (https://github.com/miraheze/LibreTranslate)',
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
