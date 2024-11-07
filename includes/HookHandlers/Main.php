@@ -278,7 +278,7 @@ class Main {
 					'unwrap' => true,
 					'enableSectionEditLinks' => false,
 					'injectTOC' => false,
-					'allowTOC' => false,       
+					'allowTOC' => false,
 				] );
 			} else {
 				$text = $content->getText();
