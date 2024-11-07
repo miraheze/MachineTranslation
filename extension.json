@@ -30,9 +30,8 @@
 			"class": "Miraheze\\LibreTranslate\\HookHandlers\\Main",
 			"services": [
 				"ConfigFactory",
-				"HttpRequestFactory",
 				"LanguageNameUtils",
-				"ObjectCacheFactory",
+				"LibreTranslateUtils",
 				"TitleFactory",
 				"WikiPageFactory"
 			]
