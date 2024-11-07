@@ -19,10 +19,6 @@ class LanguageUtils {
 		'EL' => 'ελληνικά',
 		/** English */
 		'EN' => 'English',
-		/** English (British) */
-		'EN-GB' => 'British English',
-		/** English (American) */
-		'EN-US' => 'American English',
 		/** Spanish */
 		'ES' => 'español',
 		/** Estonian */
@@ -53,10 +49,6 @@ class LanguageUtils {
 		'PL' => 'polski',
 		/** Portuguese */
 		'PT' => 'português',
-		/** Portuguese (Brazilian) */
-		'PT-BR' => 'português',
-		/** Portuguese (all other Portuguese variants) */
-		'PT-PT' => 'português',
 		/** Romanian */
 		'RO' => 'limba română',
 		/** Russian */
@@ -71,8 +63,6 @@ class LanguageUtils {
 		'TR' => 'Türkçe',
 		/** Ukrainian */
 		'UK' => 'українська мова',
-		/** Vietnamese */
-		'VI' => 'Tiếng Việt',
 		/** Chinese (simplified) */
 		'ZH' => '中文',
 		/** Chinese (traditional) */
