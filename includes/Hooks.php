@@ -218,7 +218,7 @@ class Hooks {
 		/* get title text for replace (basepage title + language caption ) */
 		$langcaption = ucfirst(
 			$this->languageNameUtils->getLanguageName( $subpage ) ??
-			self::$targetLangs[ strtoupper( $subpage ) ]
+			self::TARGET_LANGUAGES[ strtoupper( $subpage ) ]
 		);
 
 		$langtitle = '';
@@ -242,7 +242,7 @@ class Hooks {
 
 		/* get cache if enabled */
 		$cachekey = $basetitle->getArticleID() . '-' . $basetitle->getLatestRevID() . '-' . strtoupper( $subpage );
-		$text = self::getCache( $cachekey );
+		$text = $this->getCache( $cachekey );
 
 		/* translate if cache not found */
 		if ( !$text ) {
@@ -260,13 +260,13 @@ class Hooks {
 			unset( $basetitle );
 
 			/* translate */
-			$text = self::callTranslation( $out->parseAsContent( $text ), $subpage );
+			$text = $this->callTranslation( $out->parseAsContent( $text ), $subpage );
 			if ( !$text ) {
 				return;
 			}
 
 			/* store cache if enabled */
-			self::storeCache( $cachekey, $text );
+			$this->storeCache( $cachekey, $text );
 		}
 
 		/* output translated text */
