@@ -4,5 +4,5 @@
 			"Universal Omega"
 		]
 	},
-	"subtranslate-desc": "Automatically provides machine translation for any pages in the main namespace by using a LibreTranslate API instance, accessible through a subpage mechanism."
+	"libretranslate-desc": "Provides machine translation by using a LibreTranslate API instance."
 }

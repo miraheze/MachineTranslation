@@ -1,5 +1,5 @@
-# SubTranslate
-An extension to automatically provides machine translation for any pages in the main namespace by using a LibreTranslate API instance, accessible through a subpage mechanism.
+# LibreTranslate
+An extension to provide machine translation by using a LibreTranslate API instance.
 
 Developed by Universal Omega.
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Miraheze\SubTranslate\HookHandlers;
+namespace Miraheze\LibreTranslate\HookHandlers;
 
 use Article;
 use MediaWiki\Config\Config;
@@ -12,7 +12,7 @@ use MediaWiki\MainConfigNames;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
-use Miraheze\SubTranslate\ConfigNames;
+use Miraheze\LibreTranslate\ConfigNames;
 use ObjectCacheFactory;
 use TextContent;
 
@@ -110,7 +110,7 @@ class Main {
 		$this->titleFactory = $titleFactory;
 		$this->wikiPageFactory = $wikiPageFactory;
 
-		$this->config = $configFactory->makeConfig( 'SubTranslate' );
+		$this->config = $configFactory->makeConfig( 'LibreTranslate' );
 	}
 
 	private function callTranslation( string $text, string $targetLanguage ): string {
@@ -130,7 +130,7 @@ class Main {
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->config->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
-			'url' => $this->config->get( ConfigNames::LibreTranslateUrl ) . '/translate',
+			'url' => $this->config->get( ConfigNames::Url ) . '/translate',
 			'method' => 'POST',
 			'body' => [
 				'source' => 'auto',
@@ -139,7 +139,7 @@ class Main {
 				'q' => $text,
 			],
 			'headers' => [
-				'User-Agent' => 'SubTranslate, MediaWiki extension (https://github.com/miraheze/SubTranslate)',
+				'User-Agent' => 'LibreTranslate MediaWiki extension (https://github.com/miraheze/LibreTranslate)',
 			]
 		], [ 'reqTimeout' => $this->config->get( ConfigNames::Timeout ) ] );
 
@@ -158,7 +158,7 @@ class Main {
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'SubTranslate', $key );
+		$cacheKey = $cache->makeKey( 'LibreTranslate', $key );
 		return $cache->set( $cacheKey, $value, $this->config->get( ConfigNames::CachingTime ) );
 	}
 
@@ -168,7 +168,7 @@ class Main {
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'SubTranslate', $key );
+		$cacheKey = $cache->makeKey( 'LibreTranslate', $key );
 
 		if ( $this->config->get( ConfigNames::CachingTime ) === 0 ) {
 			$cache->delete( $cacheKey );

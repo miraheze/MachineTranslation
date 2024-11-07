@@ -1,8 +1,8 @@
 {
-	"name": "miraheze/sub-translate",
+	"name": "miraheze/libre-translate",
 	"type": "mediawiki-extension",
 	"description": "A MediaWiki extension to translate pages using a LibreTranslate instance.",
-	"homepage": "https://github.com/miraheze/SubTranslate",
+	"homepage": "https://github.com/miraheze/LibreTranslate",
 	"license": "GPL-3.0-or-later",
 	"authors": [
 		{
