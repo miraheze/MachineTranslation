@@ -273,7 +273,16 @@ class Main {
 				return;
 			}
 
-			$text = $content->getText();
+			if ( $this->config->get( ConfigNames::UseParserOutput ) ) {
+				$text = $page->getParserOutput()->getText( [
+					'unwrap' => true,
+					'enableSectionEditLinks' => false,
+					'injectTOC' => false,
+					'allowTOC' => false,       
+				] );
+			} else {
+				$text = $content->getText();
+			}
 
 			$page->clear();
 
