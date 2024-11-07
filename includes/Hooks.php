@@ -17,31 +17,32 @@ use TextContent;
 
 class Hooks {
 
-	/* accepted language codes and captions */
 	private static $targetLangs = [
+		// Accepted language codes and captions
+		// phpcs:disable MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment
 		'BG' => 'български език', /* Bulgarian */
 		'CS' => 'český jazyk', /* Czech */
 		'DA' => 'dansk', /* Danish */
 		'DE' => 'Deutsch', /* German */
-		'EL' => 'ελληνικά',	/* Greek */
-		'EN' => 'English', /* English */	/* unspecified variant for backward compatibility; please select EN-GB or EN-US instead */
+		'EL' => 'ελληνικά', /* Greek */
+		'EN' => 'English', /* English */
 		'EN-GB' => 'British English', /* English (British) */
 		'EN-US' => 'American English', /* English (American) */
 		'ES' => 'español', /* Spanish */
 		'ET' => 'eesti keel', /* Estonian */
 		'FI' => 'suomi', /* Finnish */
-		'FR' => 'français',	/* French */
+		'FR' => 'français', /* French */
 		'HU' => 'magyar nyelv',	/* Hungarian */
-		'ID' => 'Bahasa Indonesia',	/* Indonesian */
-		'IT' => 'italiano',	/* Italian */
+		'ID' => 'Bahasa Indonesia', /* Indonesian */
+		'IT' => 'italiano', /* Italian */
 		'JA' => '日本語', /* Japanese */
 		'KO' => '한국어', /* Korean */
 		'LT' => 'lietuvių kalba', /* Lithuanian */
-		'LV' => 'latviešu',	/* Latvian */
+		'LV' => 'latviešu', /* Latvian */
 		'NB' => 'norsk bokmål',	/* Norwegian (Bokmål) */
 		'NL' => 'Dutch', /* Dutch */
 		'PL' => 'polski', /* Polish */
-		'PT' => 'português', /* Portuguese */	/* unspecified variant for backward compatibility; please select PT-BR or PT-PT instead */
+		'PT' => 'português', /* Portuguese */
 		'PT-BR' => 'português',	/* Portuguese (Brazilian) */
 		'PT-PT' => 'português',	/* Portuguese (all Portuguese varieties excluding Brazilian Portuguese) */
 		'RO' => 'limba română',	/* Romanian */
@@ -51,7 +52,8 @@ class Hooks {
 		'SV' => 'Svenska', /* Swedish */
 		'TR' => 'Türkçe', /* Turkish */
 		'UK' => 'українська мова', /* Ukrainian */
-		'ZH' => '中文'	/* Chinese (simplified) */
+		'ZH' => '中文', /* Chinese (simplified) */
+		// phpcs:enable
 	];
 
 	private Config $config;
@@ -214,7 +216,10 @@ class Hooks {
 		}
 
 		/* get title text for replace (basepage title + language caption ) */
-		$langcaption = ucfirst( $this->languageNameUtils->getLanguageName( $subpage ) ?? self::$targetLangs[ strtoupper( $subpage ) ] );
+		$langcaption = ucfirst(
+			$this->languageNameUtils->getLanguageName( $subpage ) ??
+			self::$targetLangs[ strtoupper( $subpage ) ]
+		);
 
 		$langtitle = '';
 		if ( !$this->config->get( 'SubTranslateSuppressLanguageCaption' ) ) {
