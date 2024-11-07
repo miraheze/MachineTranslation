@@ -275,9 +275,6 @@ class Main {
 
 			$page->clear();
 
-			unset( $page );
-			unset( $baseTitle );
-
 			// Do translation
 			$text = $this->callTranslation( $out->parseAsContent( $text ), $subpage );
 			if ( !$text ) {
