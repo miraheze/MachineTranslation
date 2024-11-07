@@ -145,15 +145,16 @@ class Main {
 
 		// Translate if cache not found
 		if ( !$contentCache || $needsTitleText ) {
-			// Get content of the base page
-			$content = $page->getContent();
-			if ( !( $content instanceof TextContent ) ) {
-				return;
+			if ( !$contentCache ) {
+				// Get content of the base page
+				$content = $page->getContent();
+				if ( !( $content instanceof TextContent ) ) {
+					return;
+				}
+
+				$text = $content->getText();
+				$page->clear();
 			}
-
-			$text = $content->getText();
-
-			$page->clear();
 
 			// Do translation
 			if ( $this->config->get( ConfigNames::UseJob ) ) {
