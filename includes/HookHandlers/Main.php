@@ -276,7 +276,7 @@ class Main {
 			$text = $content->getText();
 
 			$page->clear();
-		
+
 			// Do translation
 			$text = $this->callTranslation( $out->parseAsContent( $text ), $subpage );
 			if ( !$text ) {
