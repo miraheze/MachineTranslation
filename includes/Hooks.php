@@ -17,7 +17,7 @@ use TextContent;
 
 class Hooks {
 
-	private static $targetLangs = [
+	private const TARGET_LANGUAGES = [
 		// Accepted language codes and captions
 		// phpcs:disable MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment
 		'BG' => 'български език', /* Bulgarian */
@@ -205,7 +205,7 @@ class Hooks {
 		}
 
 		/* accept language? */
-		if ( !array_key_exists( strtoupper( $subpage ), self::$targetLangs ) ) {
+		if ( !array_key_exists( strtoupper( $subpage ), self::TARGET_LANGUAGES ) ) {
 			return;
 		}
 
