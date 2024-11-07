@@ -169,7 +169,7 @@ class Main {
 			$titleText = $baseTitle->getTitleValue()->getText();
 			if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 				$titleCacheKey = $cacheKey . '-title';
-				$titleText = $this->getCache( $titleCacheKey );
+				$titleText = $this->libreTranslateUtils->getCache( $titleCacheKey );
 				if ( !$titleText ) {
 					$titleText = $this->libreTranslateUtils->callTranslation(
 						$baseTitle->getTitleValue()->getText(),
