@@ -67,7 +67,7 @@ class LibreTranslateUtils {
 
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
-			LoggerFactory::newInstance( 'LibreTranslate' )->error(
+			LoggerFactory::getInstance( 'LibreTranslate' )->error(
 				'Request to the LibreTranslate instance returned {code}: {reason}',
 				[
 					'code' => $request['code'],
