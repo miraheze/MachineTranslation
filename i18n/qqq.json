@@ -1,8 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Kimagurenote"
+			"Universal Omega"
 		]
 	},
-	"subtranslate-desc": "Provides automatic machine translation by DeepL API for any pages in NS_MAIN via subpage mechanism."
+	"subtranslate-desc": "{{desc|name=SubTranslate|url=https://github.com/miraheze/SubTranslate}}"
 }
