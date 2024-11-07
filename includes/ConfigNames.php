@@ -22,4 +22,6 @@ class ConfigNames {
 	public const TranslateTitle = 'LibreTranslateTranslateTitle';
 
 	public const Url = 'LibreTranslateUrl';
+
+	public const UseParserOutput = 'LibreTranslateUseParserOutput';
 }
