@@ -3,14 +3,17 @@
 namespace Miraheze\LibreTranslate\HookHandlers;
 
 use Article;
+use JobSpecification;
 use MediaWiki\Config\Config;
 use MediaWiki\Config\ConfigFactory;
 use MediaWiki\Html\Html;
+use MediaWiki\JobQueue\JobQueueGroupFactory;
 use MediaWiki\Languages\LanguageNameUtils;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
 use Miraheze\LibreTranslate\ConfigNames;
+use Miraheze\LibreTranslate\Jobs\LibreTranslateJob;
 use Miraheze\LibreTranslate\Services\LibreTranslateUtils;
 use TextContent;
 
@@ -90,6 +93,7 @@ class Main {
 	];
 
 	private Config $config;
+	private JobQueueGroupFactory $jobQueueGroupFactory;
 	private LanguageNameUtils $languageNameUtils;
 	private LibreTranslateUtils $libreTranslateUtils;
 	private TitleFactory $titleFactory;
@@ -97,11 +101,13 @@ class Main {
 
 	public function __construct(
 		ConfigFactory $configFactory,
+		JobQueueGroupFactory $jobQueueGroupFactory,
 		LanguageNameUtils $languageNameUtils,
 		LibreTranslateUtils $libreTranslateUtils,
 		TitleFactory $titleFactory,
 		WikiPageFactory $wikiPageFactory
 	) {
+		$this->jobQueueGroupFactory = $jobQueueGroupFactory;
 		$this->languageNameUtils = $languageNameUtils;
 		$this->libreTranslateUtils = $libreTranslateUtils;
 		$this->titleFactory = $titleFactory;
@@ -212,17 +218,36 @@ class Main {
 			$page->clear();
 
 			// Do translation
-			$text = $this->libreTranslateUtils->callTranslation(
-				$out->parseAsContent( $text ),
-				$subpage
-			);
+			if ( $this->config->get( ConfigNames::UseJob ) ) {
+				$jobQueueGroup = $this->jobQueueGroupFactory->makeJobQueueGroup();
+				$jobQueueGroup->push(
+					new JobSpecification(
+						LibreTranslateJob::JOB_NAME,
+						[
+							'cachekey' => $cacheKey,
+							'content' => $out->parseAsContent( $text ),
+							'subpage' => $subpage,
+						]
+					)
+				);
 
-			if ( !$text ) {
-				return;
+				$text = 'Translation currently processing';
+
+				// Store cache if enabled
+				$this->libreTranslateUtils->storeCache( $cacheKey . '-progress', $text );
+			} else {
+				$text = $this->libreTranslateUtils->callTranslation(
+					$out->parseAsContent( $text ),
+					$subpage
+				);
+
+				if ( !$text ) {
+					return;
+				}
+
+				// Store cache if enabled
+				$this->libreTranslateUtils->storeCache( $cacheKey, $text );
 			}
-
-			// Store cache if enabled
-			$this->libreTranslateUtils->storeCache( $cacheKey, $text );
 		}
 
 		// Output translated text
