@@ -239,7 +239,7 @@ class Main {
 				$titleCacheKey = $cacheKey . '-title';
 				$titleText = $this->getCache( $titleCacheKey );
 				if ( !$titleText ) {
-					$titleText = $this->callTranslation( $titleText, $subpage );
+					$titleText = $this->callTranslation( $baseTitle->getTitleValue()->getText(), $subpage );
 					$this->storeCache( $titleCacheKey, $titleText );
 				}
 			}
