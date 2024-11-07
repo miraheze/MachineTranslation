@@ -3,7 +3,6 @@
 namespace Miraheze\SubTranslate;
 
 use Article;
-use ContentHandler;
 use MediaWiki\Config\Config;
 use MediaWiki\Config\ConfigFactory;
 use MediaWiki\Html\Html;
@@ -14,6 +13,7 @@ use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
 use ObjectCacheFactory;
+use TextContent;
 
 class Hooks {
 
@@ -229,7 +229,7 @@ class Hooks {
 
 		/* create WikiPage of basepage */
 		$page = $this->wikiPageFactory->newFromTitle( $basetitle );
-		if ( $page === null || !$page->exists() ) {
+		if ( !$page->exists() ) {
 			return;
 		}
 
@@ -243,7 +243,11 @@ class Hooks {
 		if ( !$text ) {
 			/* get content of basepage */
 			$content = $page->getContent();
-			$text = ContentHandler::getContentText( $content );
+			if ( !( $content instanceof TextContent ) ) {
+				return;
+			}
+			
+			$text = $content->getText();
 
 			$page->clear();
 
