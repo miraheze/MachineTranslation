@@ -1,0 +1,44 @@
+{
+	"name": "miraheze/sub-translate",
+	"type": "mediawiki-extension",
+	"description": "A MediaWiki extension to translate pages using a LibreTranslate instance.",
+	"homepage": "https://github.com/miraheze/SubTranslate",
+	"license": "BSD-3-Clause",
+	"authors": [
+		{
+			"name": "Universal Omega"
+		}
+	],
+	"require": {
+		"composer/installers": ">=1.0.1",
+		"php-ai/php-ml": "*"
+	},
+	"require-dev": {
+		"mediawiki/mediawiki-codesniffer": "45.0.0",
+		"mediawiki/mediawiki-phan-config": "0.14.0",
+		"mediawiki/minus-x": "1.1.3",
+		"php-parallel-lint/php-console-highlighter": "1.0.0",
+		"php-parallel-lint/php-parallel-lint": "1.4.0"
+	},
+	"scripts": {
+		"fix": [
+			"minus-x fix .",
+			"phpcbf; if [ $? -eq 1 ]; then exit 0; fi"
+		],
+		"test": [
+			"parallel-lint . --exclude node_modules --exclude vendor",
+			"minus-x check .",
+			"@phpcs"
+		],
+		"phan": "phan -d . --long-progress-bar",
+		"phpcs": "phpcs -sp --cache"
+	},
+	"config": {
+		"prepend-autoloader": false,
+		"optimize-autoloader": true,
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
+}
