@@ -16,83 +16,11 @@ use MediaWiki\Title\TitleFactory;
 use MessageLocalizer;
 use Miraheze\LibreTranslate\ConfigNames;
 use Miraheze\LibreTranslate\Jobs\LibreTranslateJob;
+use Miraheze\LibreTranslate\LanguageUtils;
 use Miraheze\LibreTranslate\Services\LibreTranslateUtils;
 use TextContent;
 
 class Main {
-
-	private const TARGET_LANGUAGES = [
-		// Accepted language codes and captions
-
-		/** Bulgarian */
-		'BG' => 'български език',
-		/** Czech */
-		'CS' => 'český jazyk',
-		/** Danish */
-		'DA' => 'dansk',
-		/** German */
-		'DE' => 'Deutsch',
-		/** Greek */
-		'EL' => 'ελληνικά',
-		/** English */
-		'EN' => 'English',
-		/** English (British) */
-		'EN-GB' => 'British English',
-		/** English (American) */
-		'EN-US' => 'American English',
-		/** Spanish */
-		'ES' => 'español',
-		/** Estonian */
-		'ET' => 'eesti keel',
-		/** Finnish */
-		'FI' => 'suomi',
-		/** French */
-		'FR' => 'français',
-		/** Hungarian */
-		'HU' => 'magyar nyelv',
-		/** Indonesian */
-		'ID' => 'Bahasa Indonesia',
-		/** Italian */
-		'IT' => 'italiano',
-		/** Japanese */
-		'JA' => '日本語',
-		/** Korean */
-		'KO' => '한국어',
-		/** Lithuanian */
-		'LT' => 'lietuvių kalba',
-		/** Latvian */
-		'LV' => 'latviešu',
-		/** Norwegian (Bokmål) */
-		'NB' => 'norsk bokmål',
-		/** Dutch */
-		'NL' => 'Dutch',
-		/** Polish */
-		'PL' => 'polski',
-		/** Portuguese */
-		'PT' => 'português',
-		/** Portuguese (Brazilian) */
-		'PT-BR' => 'português',
-		/** Portuguese (all other Portuguese variants) */
-		'PT-PT' => 'português',
-		/** Romanian */
-		'RO' => 'limba română',
-		/** Russian */
-		'RU' => 'русский язык',
-		/** Slovak */
-		'SK' => 'slovenčina',
-		/** Slovenian */
-		'SL' => 'slovenski jezik',
-		/** Swedish */
-		'SV' => 'Svenska',
-		/** Turkish */
-		'TR' => 'Türkçe',
-		/** Ukrainian */
-		'UK' => 'українська мова',
-		/** Chinese (simplified) */
-		'ZH' => '中文',
-		/** Chinese (traditional) */
-		'ZT' => '中文 (繁體)',
-	];
 
 	private Config $config;
 	private JobQueueGroupFactory $jobQueueGroupFactory;
@@ -152,12 +80,12 @@ class Main {
 		}
 
 		// Language code check
-		if ( !preg_match( '/^[A-Za-z][A-Za-z](\-[A-Za-z][A-Za-z])?$/', $subpage ) ) {
+		if ( !LanguageUtils::isValidLanguageCode( $subpage ) ) {
 			return;
 		}
 
 		// Accept language?
-		if ( !array_key_exists( strtoupper( $subpage ), self::TARGET_LANGUAGES ) ) {
+		if ( !LanguageUtils::isLanguageSupported( strtoupper( $subpage ) ) ) {
 			return;
 		}
 
@@ -171,7 +99,7 @@ class Main {
 		// Get title text for replace (the base page title + language caption)
 		$languageCaption = ucfirst(
 			$this->languageNameUtils->getLanguageName( $subpage ) ?:
-			self::TARGET_LANGUAGES[ strtoupper( $subpage ) ]
+			LanguageUtils::getLanguageCaption( strtoupper( $subpage ) )
 		);
 
 		$languageTitle = '';
