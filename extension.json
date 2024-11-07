@@ -24,6 +24,7 @@
 		"LibreTranslateJob": {
 			"class": "Miraheze\\LibreTranslate\\Jobs\\LibreTranslateJob",
 			"services": [
+				"ConfigFactory",
 				"LibreTranslateUtils"
 			],
 			"needsPage": false
