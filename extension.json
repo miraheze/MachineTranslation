@@ -65,7 +65,7 @@
 		},
 		"SubTranslateTranslateTitle": {
 			"description": "Boolean. Whether to also translate the page title. This will create an extra request to the translation API.",
-			"value": true
+			"value": false
 		}
 	},
 	"ConfigRegistry": {
