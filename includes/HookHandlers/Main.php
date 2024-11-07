@@ -137,8 +137,13 @@ class Main {
 		// Get cache if enabled
 		$text = $this->libreTranslateUtils->getCache( $cacheKey );
 
+		$titleTextCache = $this->libreTranslateUtils->getCache( $cacheKey . '-title' );
+		$needsTitleText = !$titleTextCache && !$this->config->get( ConfigNames::SuppressLanguageCaption ) &&
+			$this->config->get( ConfigNames::TranslateTitle ) &&
+			$this->config->get( ConfigNames::UseJob );
+
 		// Translate if cache not found
-		if ( !$text ) {
+		if ( !$text || $needsTitleText ) {
 			// Get content of the base page
 			$content = $page->getContent();
 			if ( !( $content instanceof TextContent ) ) {
