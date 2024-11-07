@@ -37,9 +37,12 @@ class LibreTranslateJob extends Job {
 	}
 
 	public function run(): bool {
-		$translatedText = $this->libreTranslateUtils->callTranslation(
-			$this->content, $this->subpage
-		);
+		$translatedText = $this->libreTranslateUtils->getCache( $this->cacheKey );
+		if ( !$translatedText ) {
+			$translatedText = $this->libreTranslateUtils->callTranslation(
+				$this->content, $this->subpage
+			);
+		}
 
 		if ( !$translatedText ) {
 			$this->libreTranslateUtils->deleteCache( $this->cacheKey . '-progress' );
