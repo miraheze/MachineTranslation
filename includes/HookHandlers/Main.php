@@ -86,7 +86,7 @@ class Main {
 		/** Ukrainian */
 		'UK' => 'українська мова',
 		/** Chinese (simplified) */
-		'ZH' => '中文（简体）',
+		'ZH' => '中文',
 		/** Chinese (traditional) */
 		'ZT' => '中文（繁體）',
 	];
