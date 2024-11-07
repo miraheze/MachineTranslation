@@ -246,7 +246,7 @@ class Hooks {
 			if ( !( $content instanceof TextContent ) ) {
 				return;
 			}
-			
+
 			$text = $content->getText();
 
 			$page->clear();
