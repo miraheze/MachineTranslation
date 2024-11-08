@@ -32,216 +32,148 @@ class MachineTranslationUtils {
 		ObjectCacheFactory $objectCacheFactory,
 		ServiceOptions $options
 	) {
-		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
+		$options->assertRequiredOptions(self::CONSTRUCTOR_OPTIONS);
 
 		$this->httpRequestFactory = $httpRequestFactory;
 		$this->objectCacheFactory = $objectCacheFactory;
 		$this->options = $options;
 	}
 
-	public function callTranslation( string $text, string $targetLanguage ): string {
-		switch ( strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' ) ) {
+	public function callTranslation(string $text, string $targetLanguage): string {
+		$serviceConfig = $this->options->get(ConfigNames::ServiceConfig);
+		$serviceType = strtolower($serviceConfig['type'] ?? '');
+
+		switch ($serviceType) {
 			case 'deepl':
-				return $this->doDeepL( $text, $targetLanguage );
 			case 'googletranslate':
-				return $this->doGoogleTranslate( $text, $targetLanguage );
 			case 'libretranslate':
-				return $this->doLibreTranslate( $text, $targetLanguage );
+				return $this->callApiService(
+					$serviceType,
+					$text,
+					$targetLanguage,
+					$serviceConfig
+				);
 			default:
-				throw new ConfigException( 'Unsupported machine translation service configured.' );
+				throw new ConfigException('Unsupported machine translation service configured.');
 		}
 	}
 
-	private function doDeepL( string $text, string $targetLanguage ): string {
+	private function callApiService(
+		string $serviceType,
+		string $text,
+		string $targetLanguage,
+		array $serviceConfig
+	): string {
 		// Check parameters
-		if ( !$text || !$targetLanguage ) {
-			return '';
-		}
-
-		if ( strlen( $text ) > 131072 ) {
-			// Exit if content length is over 128KiB
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Text to large to translate. Length: {length}',
-				[
-					'length' => strlen( $text ),
-				]
-			);
-			return '';
-		}
-
-		$targetLanguage = strtolower( $targetLanguage );
-
-		// Call API
-		$request = $this->httpRequestFactory->createMultiClient(
-			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
-		)->run( [
-			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'],
-			'method' => 'POST',
-			'body' => [
-				'target_lang' => $targetLanguage,
-				'tag_handling' => 'html',
-				'text' => $text,
-			],
-			'headers' => [
-				'authorization' => 'DeepL-Auth-Key ' . $this->options->get( ConfigNames::ServiceConfig )['apikey'],
-				'user-agent' => self::USER_AGENT,
-			]
-		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
-
-		// Check if the HTTP response code is returning 200
-		if ( $request['code'] !== 200 ) {
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to DeepL returned {code}: {reason}',
-				[
-					'code' => $request['code'],
-					'reason' => $request['reason'],
-				]
-			);
-			return '';
-		}
-
-		$json = json_decode( $request['body'], true );
-		return $json['translations'][0]['text'] ?? '';
-	}
-
-	private function doGoogleTranslate( string $text, string $targetLanguage ): string {
-		// Check parameters
-		if ( !$text || !$targetLanguage ) {
-			return '';
-		}
-
-		if ( strlen( $text ) > 131072 ) {
-			// Exit if content length is over 128KiB
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
+		if (!$text || !$targetLanguage || strlen($text) > 131072) {
+			LoggerFactory::getInstance('MachineTranslation')->error(
 				'Text too large to translate. Length: {length}',
 				[
-					'length' => strlen( $text ),
+					'length' => strlen($text),
 				]
 			);
 			return '';
 		}
 
-		$targetLanguage = strtolower( $targetLanguage );
+		$targetLanguage = strtolower($targetLanguage);
+		$url = $serviceConfig['url'] ?? '';
+		$apiKey = $serviceConfig['apikey'] ?? '';
 
-		// Call API
-		$request = $this->httpRequestFactory->createMultiClient(
-			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
-		)->run( [
-			'url' => 'https://translation.googleapis.com/language/translate/v2',
+		// Build the request body and headers based on service type
+		$body = [];
+		$headers = [ 'user-agent' => self::USER_AGENT ];
+		switch ($serviceType) {
+			case 'deepl':
+				$body = [
+					'target_lang' => $targetLanguage,
+					'tag_handling' => 'html',
+					'text' => $text,
+				];
+				$headers['authorization'] = 'DeepL-Auth-Key ' . $apiKey;
+				break;
+			case 'googletranslate':
+				$body = [
+					'q' => $text,
+					'target' => $targetLanguage,
+					'format' => 'html',
+					'key' => $apiKey,
+				];
+				break;
+			case 'libretranslate':
+				$body = [
+					'source' => 'auto',
+					'target' => $targetLanguage,
+					'format' => 'html',
+					'q' => $text,
+				];
+				break;
+		}
+
+		$request = $this->httpRequestFactory->createMultiClient( [
+			'proxy' => $this->options->get( MainConfigNames::HTTPProxy )
+		] )->run( [
+			'url' => $url,
 			'method' => 'POST',
-			'body' => [
-				'q' => $text,
-				'target' => $targetLanguage,
-				'format' => 'html',
-				'key' => $this->options->get( ConfigNames::ServiceConfig )['apikey'],
-			],
-			'headers' => [
-				'user-agent' => self::USER_AGENT,
-			]
-		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
+			'body' => $body,
+			'headers' => $headers
+		], [ 'reqTimeout' => $this->options->get(ConfigNames::Timeout) ] );
 
 		// Check if the HTTP response code is returning 200
-		if ( $request['code'] !== 200 ) {
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Google Translate returned {code}: {reason}',
+		if ($request['code'] !== 200) {
+			LoggerFactory::getInstance('MachineTranslation')->error(
+				'Request to {service} returned {code}: {reason}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
+					'service' => ucfirst($serviceType),
 				]
 			);
 			return '';
 		}
 
-		$json = json_decode( $request['body'], true );
-		return $json['data']['translations'][0]['translatedText'] ?? '';
+		// Return the translated text in the correct format based on the service type
+		$json = json_decode($request['body'], true);
+		return match ($serviceType) {
+			'deepl' => $json['translations'][0]['text'] ?? '',
+			'googletranslate' => $json['data']['translations'][0]['translatedText'] ?? '',
+			'libretranslate' => $json['translatedText'] ?? '',
+			default => '',
+		};
 	}
 
-	private function doLibreTranslate( string $text, string $targetLanguage ): string {
-		// Check parameters
-		if ( !$text || !$targetLanguage ) {
-			return '';
-		}
-
-		if ( strlen( $text ) > 131072 ) {
-			// Exit if content length is over 128KiB
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Text to large to translate. Length: {length}',
-				[
-					'length' => strlen( $text ),
-				]
-			);
-			return '';
-		}
-
-		$targetLanguage = strtolower( $targetLanguage );
-
-		// Call API
-		$request = $this->httpRequestFactory->createMultiClient(
-			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
-		)->run( [
-			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/translate',
-			'method' => 'POST',
-			'body' => [
-				'source' => 'auto',
-				'target' => $targetLanguage,
-				'format' => 'html',
-				'q' => $text,
-			],
-			'headers' => [
-				'user-agent' => self::USER_AGENT,
-			]
-		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
-
-		// Check if the HTTP response code is returning 200
-		if ( $request['code'] !== 200 ) {
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to LibreTranslate returned {code}: {reason}',
-				[
-					'code' => $request['code'],
-					'reason' => $request['reason'],
-				]
-			);
-			return '';
-		}
-
-		$json = json_decode( $request['body'], true );
-		return $json['translatedText'] ?? '';
-	}
-
-	public function storeCache( string $key, string $value ): bool {
-		if ( !$this->options->get( ConfigNames::Caching ) ) {
+	public function storeCache(string $key, string $value): bool {
+		if (!$this->options->get(ConfigNames::Caching)) {
 			return false;
 		}
 
-		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'MachineTranslation', $key );
-		return $cache->set( $cacheKey, $value, $this->options->get( ConfigNames::CachingTime ) );
+		$cache = $this->objectCacheFactory->getInstance(CACHE_ANYTHING);
+		$cacheKey = $cache->makeKey('MachineTranslation', $key);
+		return $cache->set($cacheKey, $value, $this->options->get(ConfigNames::CachingTime));
 	}
 
-	public function getCache( string $key ): bool|string {
-		if ( !$this->options->get( ConfigNames::Caching ) ) {
+	public function getCache(string $key): bool|string {
+		if (!$this->options->get(ConfigNames::Caching)) {
 			return false;
 		}
 
-		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'MachineTranslation', $key );
+		$cache = $this->objectCacheFactory->getInstance(CACHE_ANYTHING);
+		$cacheKey = $cache->makeKey('MachineTranslation', $key);
 
-		if ( $this->options->get( ConfigNames::CachingTime ) === 0 ) {
-			$cache->delete( $cacheKey );
+		if ($this->options->get(ConfigNames::CachingTime) === 0) {
+			$cache->delete($cacheKey);
 			return false;
 		}
 
-		return $cache->get( $cacheKey );
+		return $cache->get($cacheKey);
 	}
 
-	public function deleteCache( string $key ): void {
-		if ( !$this->options->get( ConfigNames::Caching ) ) {
+	public function deleteCache(string $key): void {
+		if (!$this->options->get(ConfigNames::Caching)) {
 			return;
 		}
 
-		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'MachineTranslation', $key );
-
-		$cache->delete( $cacheKey );
+		$cache = $this->objectCacheFactory->getInstance(CACHE_ANYTHING);
+		$cacheKey = $cache->makeKey('MachineTranslation', $key);
+		$cache->delete($cacheKey);
 	}
 }
