@@ -20,6 +20,9 @@ class MachineTranslationUtils {
 		MainConfigNames::HTTPProxy,
 	];
 
+	private const USER_AGENT = 'MachineTranslation, MediaWiki extension ' .
+		'(https://github.com/miraheze/MachineTranslation)';
+
 	private HttpRequestFactory $httpRequestFactory;
 	private ObjectCacheFactory $objectCacheFactory;
 	private ServiceOptions $options;
@@ -66,9 +69,6 @@ class MachineTranslationUtils {
 
 		$targetLanguage = strtolower( $targetLanguage );
 
-		$userAgent = 'MachineTranslation, MediaWiki extension ' .
-			'(https://github.com/miraheze/MachineTranslation)';
-
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
@@ -81,8 +81,8 @@ class MachineTranslationUtils {
 				'text' => $text,
 			],
 			'headers' => [
-				'user-agent' => $userAgent,
 				'authorization' => 'DeepL-Auth-Key ' . $this->options->get( ConfigNames::ServiceConfig )['apikey'],
+				'user-agent' => self::USER_AGENT,
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
@@ -121,9 +121,6 @@ class MachineTranslationUtils {
 
 		$targetLanguage = strtolower( $targetLanguage );
 
-		$userAgent = 'MachineTranslation, MediaWiki extension ' .
-			'(https://github.com/miraheze/MachineTranslation)';
-
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
@@ -137,7 +134,7 @@ class MachineTranslationUtils {
 				'q' => $text,
 			],
 			'headers' => [
-				'user-agent' => $userAgent,
+				'user-agent' => self::USER_AGENT,
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
