@@ -102,7 +102,7 @@ class Main {
 		// Get title text for replace (the base page title + language caption)
 		$languageCaption = ucfirst(
 			$this->languageNameUtils->getLanguageName( $subpage ) ?:
-			$this->languageUtils( strtoupper( $subpage ) )
+			$this->languageUtils->getLanguageCaption( strtoupper( $subpage ) )
 		);
 
 		$languageTitle = '';
