@@ -72,7 +72,7 @@ class MachineTranslationUtils {
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
-			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'],
+			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/v2/translate',
 			'method' => 'POST',
 			'body' => [
 				'target_lang' => $targetLanguage,
