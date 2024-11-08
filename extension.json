@@ -42,6 +42,7 @@
 				"ConfigFactory",
 				"JobQueueGroupFactory",
 				"LanguageNameUtils",
+				"MachineTranslationLanguageUtils",
 				"MachineTranslationUtils",
 				"TitleFactory",
 				"WikiPageFactory"
