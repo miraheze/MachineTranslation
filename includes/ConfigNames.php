@@ -23,5 +23,5 @@ class ConfigNames {
 
 	public const Url = 'LibreTranslateUrl';
 
-	public const UseJob = 'LibreTranslateUseJob';
+	public const UseJobQueue = 'LibreTranslateUseJobQueue';
 }

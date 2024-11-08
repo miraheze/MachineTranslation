@@ -77,8 +77,8 @@
 			"description": "String. URL of the LibreTranslate instance to use.",
 			"value": "https://trans.zillyhuhn.com"
 		},
-		"LibreTranslateUseJob": {
-			"description": "Boolean. Whether to use a job for processing translations.",
+		"LibreTranslateUseJobQueue": {
+			"description": "Boolean. Whether to use the job queue for processing translations.",
 			"value": true
 		}
 	},

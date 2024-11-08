@@ -108,7 +108,7 @@ class Main {
 			if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 				$titleCacheKey = $cacheKey . '-title';
 				$titleText = $this->libreTranslateUtils->getCache( $titleCacheKey );
-				if ( !$titleText && !$this->config->get( ConfigNames::UseJob ) ) {
+				if ( !$titleText && !$this->config->get( ConfigNames::UseJobQueue ) ) {
 					$titleText = $this->libreTranslateUtils->callTranslation(
 						$baseTitle->getTitleValue()->getText(),
 						$subpage
@@ -141,7 +141,7 @@ class Main {
 		$titleTextCache = $this->libreTranslateUtils->getCache( $cacheKey . '-title' );
 		$needsTitleText = !$titleTextCache && !$this->config->get( ConfigNames::SuppressLanguageCaption ) &&
 			$this->config->get( ConfigNames::TranslateTitle ) &&
-			$this->config->get( ConfigNames::UseJob );
+			$this->config->get( ConfigNames::UseJobQueue );
 
 		// Translate if cache not found
 		if ( !$contentCache || $needsTitleText ) {
@@ -157,7 +157,7 @@ class Main {
 			}
 
 			// Do translation
-			if ( $this->config->get( ConfigNames::UseJob ) ) {
+			if ( $this->config->get( ConfigNames::UseJobQueue ) ) {
 				if ( !$this->libreTranslateUtils->getCache( $cacheKey . '-progress' ) ) {
 					$jobQueueGroup = $this->jobQueueGroupFactory->makeJobQueueGroup();
 					$jobQueueGroup->push(
