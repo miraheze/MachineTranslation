@@ -62,7 +62,7 @@
 			"value": ""
 		},
 		"MachineTranslationServiceConfig": {
-			"description": "Array. Configure the machine translation service. type: <required, the name of the service, allowed values: DeepL, LibreTranslate>; url: <required, the API URL>; apikey: <optional, required if using DeepL, the API key for the machine translation service>",
+			"description": "Array. Configure the machine translation service. type: <required, the name of the service, allowed values: DeepL, LibreTranslate>; url: <optional, required if using DeepL or LibreTranslate, the API URL for the machine translation service>; apikey: <optional, required if using DeepL or Google Translate, the API key for the machine translation service>",
 			"value": {
 				"type": "LibreTranslate",
 				"url": "https://trans.zillyhuhn.com"
