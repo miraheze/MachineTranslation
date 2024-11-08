@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Kimagurenote"
+			"Universal Omega"
 		]
 	},
-	"subtranslate-desc": "Provides automatic machine translation by DeepL API for any pages in NS_MAIN via subpage mechanism."
+	"libretranslate-desc": "{{desc|name=LibreTranslate|url=https://github.com/miraheze/LibreTranslate}}",
+	"libretranslate-extensionname": "{{name}}",
+	"libretranslate-processing": "Message displayed when the LibreTranslate job is still processing the translation."
 }

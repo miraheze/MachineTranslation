@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Kimagurenote"
+			"Universal Omega"
 		]
 	},
-	"subtranslate-desc": "Provides automatic machine translation by DeepL API for any pages in NS_MAIN via subpage mechanism."
+	"libretranslate-desc": "Provides machine translation by using a LibreTranslate API instance.",
+	"libretranslate-extensionname": "LibreTranslate",
+	"libretranslate-processing": "This translation is currently processing. Please check back later..."
 }

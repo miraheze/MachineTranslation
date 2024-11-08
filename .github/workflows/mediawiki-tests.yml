@@ -1,0 +1,70 @@
+name: Call reusable MediaWiki tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  call-mediawiki-tests-workflow:
+    uses: miraheze/.github/.github/workflows/mediawiki-tests.yml@master
+    strategy:
+      matrix:
+        include:
+          # Latest MediaWiki stable - PHP 8.1
+          - mw: 'REL1_42'
+            php: 8.1
+            php-docker: 81
+            composer-test: true
+            experimental: false
+
+          # Latest MediaWiki release branch - PHP 8.1
+          - mw: 'REL1_43'
+            php: 8.1
+            php-docker: 81
+            composer-test: false
+            experimental: true
+
+          # Latest MediaWiki master - PHP 8.1
+          - mw: 'master'
+            php: 8.1
+            php-docker: 81
+            composer-test: false
+            experimental: true
+
+    with:
+      mw: ${{ matrix.mw }}
+      php: ${{ matrix.php }}
+      php-docker: ${{ matrix.php-docker }}
+      experimental: ${{ matrix.experimental }}
+      composer-test: ${{ matrix.composer-test }}
+
+    secrets: inherit
+
+  notify-irc:
+    needs: call-mediawiki-tests-workflow
+    runs-on: ubuntu-latest
+    if: ${{ always() && github.repository_owner == 'miraheze' && ( github.ref == 'refs/heads/master' || github.event_name == 'pull_request' ) }}
+    steps:
+      - name: succeeded
+        uses: technote-space/workflow-conclusion-action@v3
+      - uses: rectalogic/notify-irc@v2
+        if: env.WORKFLOW_CONCLUSION == 'success'
+        with:
+          channel: "#miraheze-tech-ops"
+          server: "irc.libera.chat"
+          nickname: miraheze-github
+          message: ${{ github.repository }} - ${{ github.actor }} the build passed.
+          sasl_password: ${{ secrets.IRC_MIRAHEZEBOTS }}
+
+      - name: failed
+        uses: technote-space/workflow-conclusion-action@v3
+      - uses: rectalogic/notify-irc@v2
+        if: env.WORKFLOW_CONCLUSION == 'failure'
+        with:
+          channel: "#miraheze-tech-ops"
+          server: "irc.libera.chat"
+          nickname: miraheze-github
+          message: ${{ github.repository }} - ${{ github.actor }} the build has errored.
+          sasl_password: ${{ secrets.IRC_MIRAHEZEBOTS }}

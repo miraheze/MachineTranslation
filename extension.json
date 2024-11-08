@@ -1,27 +1,92 @@
 {
-	"name": "SubTranslate",
-	"version": "1.0.2",
-	"author": "[https://kimagurenote.net/ Kimagurenote]",
-	"url": "https://www.mediawiki.org/wiki/Extension:SubTranslate",
-	"descriptionmsg": "subtranslate-desc",
-	"license-name": "BSD-3-Clause",
+	"name": "LibreTranslate",
+	"author": "Universal Omega",
+	"url": "https://github.com/miraheze/LibreTranslate",
+	"descriptionmsg": "libretranslate-desc",
+	"namemsg": "libretranslate-extensionname",
+	"license-name": "GPL-3.0-or-later",
 	"type": "interface",
 	"requires": {
-		"MediaWiki": ">= 1.35.0",
+		"MediaWiki": ">= 1.42.0",
 		"platform": {
-			"php": ">= 7.2.0"
+			"php": ">= 8.0"
 		}
 	},
 	"MessagesDirs": {
-		"SubTranslate": [
+		"LibreTranslate": [
 			"i18n"
 		]
 	},
-	"AutoloadClasses": {
-		"SubTranslate": "includes/SubTranslate.php"
+	"AutoloadNamespaces": {
+		"Miraheze\\LibreTranslate\\": "includes/"
+	},
+	"JobClasses": {
+		"LibreTranslateJob": {
+			"class": "Miraheze\\LibreTranslate\\Jobs\\LibreTranslateJob",
+			"services": [
+				"ConfigFactory",
+				"LibreTranslateUtils"
+			],
+			"needsPage": false
+		}
 	},
 	"Hooks": {
-		"ArticleViewHeader": "SubTranslate::onArticleViewHeader"
+		"ArticleViewHeader": {
+			"handler": "Main"
+		}
 	},
-	"manifest_version": 1
+	"HookHandlers": {
+		"Main": {
+			"class": "Miraheze\\LibreTranslate\\HookHandlers\\Main",
+			"services": [
+				"ConfigFactory",
+				"JobQueueGroupFactory",
+				"LanguageNameUtils",
+				"LibreTranslateUtils",
+				"TitleFactory",
+				"WikiPageFactory"
+			]
+		}
+	},
+	"config": {
+		"LibreTranslateCaching": {
+			"description": "Boolean. Whether to enable caching for translation subpages.",
+			"value": true
+		},
+		"LibreTranslateCachingTime": {
+			"description": "Integer. The time in seconds to cache translations for.",
+			"value": 86400
+		},
+		"LibreTranslateRobotPolicy": {
+			"description": "String. The robot policy to use for translation subpages.",
+			"value": ""
+		},
+		"LibreTranslateSuppressLanguageCaption": {
+			"description": "Boolean. Whether to suppress (disable) the language caption on translation subpages.",
+			"value": false
+		},
+		"LibreTranslateTimeout": {
+			"description": "Integer. The time in seconds before connecting to the LibreTranslate instance will timeout.",
+			"value": 86400
+		},
+		"LibreTranslateTranslateTitle": {
+			"description": "Boolean. Whether to also translate the page title. This will create an extra request to the translation API.",
+			"value": false
+		},
+		"LibreTranslateUrl": {
+			"description": "String. URL of the LibreTranslate instance to use.",
+			"value": "https://trans.zillyhuhn.com"
+		},
+		"LibreTranslateUseJobQueue": {
+			"description": "Boolean. Whether to use the job queue for processing translations.",
+			"value": true
+		}
+	},
+	"ConfigRegistry": {
+		"LibreTranslate": "MediaWiki\\Config\\GlobalVarConfig::newInstance"
+	},
+	"ServiceWiringFiles": [
+		"includes/ServiceWiring.php"
+	],
+	"manifest_version": 2
 }
