@@ -54,7 +54,11 @@ class MachineTranslationUtils {
 		}
 
 		// Check parameters
-		if ( !$text || !$targetLanguage || strlen( $text ) > 131072 ) {
+		if ( !$text || !$targetLanguage ) {
+			return '';
+		}
+
+		if ( strlen( $text ) > 131072 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
 				'Text too large to translate. Length: {length}',
 				[
