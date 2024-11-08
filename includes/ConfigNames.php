@@ -1,7 +1,7 @@
 <?php
 
 // phpcs:disable Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
-namespace Miraheze\LibreTranslate;
+namespace Miraheze\MachineTranslation;
 
 /**
  * A class containing constants representing the names of configuration variables,
@@ -9,19 +9,19 @@ namespace Miraheze\LibreTranslate;
  */
 class ConfigNames {
 
-	public const Caching = 'LibreTranslateCaching';
+	public const Caching = 'MachineTranslationCaching';
 
-	public const CachingTime = 'LibreTranslateCachingTime';
+	public const CachingTime = 'MachineTranslationCachingTime';
 
-	public const RobotPolicy = 'LibreTranslateRobotPolicy';
+	public const RobotPolicy = 'MachineTranslationRobotPolicy';
 
-	public const SuppressLanguageCaption = 'LibreTranslateSuppressLanguageCaption';
+	public const ServiceConfig = 'MachineTranslationServiceConfig';
 
-	public const Timeout = 'LibreTranslateTimeout';
+	public const SuppressLanguageCaption = 'MachineTranslationSuppressLanguageCaption';
 
-	public const TranslateTitle = 'LibreTranslateTranslateTitle';
+	public const Timeout = 'MachineTranslationTimeout';
 
-	public const Url = 'LibreTranslateUrl';
+	public const TranslateTitle = 'MachineTranslationTranslateTitle';
 
-	public const UseJobQueue = 'LibreTranslateUseJobQueue';
+	public const UseJobQueue = 'MachineTranslationUseJobQueue';
 }
