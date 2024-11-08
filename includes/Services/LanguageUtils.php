@@ -34,41 +34,41 @@ class LanguageUtils {
 	}
 
 	public function getSupportedLanguages(): array {
-		$serviceType = strtolower($this->options->get(ConfigNames::ServiceConfig)['type'] ?? '');
+		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 
-		return match ($serviceType) {
+		return match ( $serviceType ) {
 			'deepl' => $this->fetchDeepLSupportedLanguages(),
 			'google' => $this->fetchGoogleSupportedLanguages(),
 			'libretranslate' => $this->fetchLibreTranslateSupportedLanguages(),
-			default => throw new ConfigException('Unsupported translation service configured.'),
+			default => throw new ConfigException( 'Unsupported translation service configured.' ),
 		};
 	}
 
 	private function fetchDeepLSupportedLanguages(): array {
-		$url = $this->options->get(ConfigNames::ServiceConfig)['url'] . '/v2/languages';
+		$url = $this->options->get( ConfigNames::ServiceConfig )['url'] . '/v2/languages';
 		$apiKey = $this->options->get( ConfigNames::ServiceConfig )['apikey'];
 
 		$query = [ 'type' => 'source' ];
 		$headers = [ 'authorization' => 'DeepL-Auth-Key ' . $apiKey ];
 
-		$response = $this->makeRequest($url, $query, $headers);
-		return $this->parseDeepLLanguages($response);
+		$response = $this->makeRequest( $url, $query, $headers );
+		return $this->parseDeepLLanguages( $response );
 	}
 
 	private function fetchGoogleSupportedLanguages(): array {
 		$url = 'https://translation.googleapis.com/language/translate/v2/languages';
-		$query = [ 'key' => $this->options->get(ConfigNames::ServiceConfig)['apikey'] ];
-		$response = $this->makeRequest($url, $query, []);
-		return $this->parseGoogleLanguages($response);
+		$query = [ 'key' => $this->options->get( ConfigNames::ServiceConfig )['apikey'] ];
+		$response = $this->makeRequest( $url, $query, [] );
+		return $this->parseGoogleLanguages( $response );
 	}
 
 	private function fetchLibreTranslateSupportedLanguages(): array {
-		$url = $this->options->get(ConfigNames::ServiceConfig)['url'] . '/languages';
+		$url = $this->options->get( ConfigNames::ServiceConfig )['url'] . '/languages';
 		$response = $this->makeRequest( $url, [], [] );
-		return $this->parseLibreTranslateLanguages($response);
+		return $this->parseLibreTranslateLanguages( $response );
 	}
 
-	private function makeRequest(string $url, array $query, array $headers): array {
+	private function makeRequest( string $url, array $query, array $headers ): array {
 		$response = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
@@ -79,8 +79,8 @@ class LanguageUtils {
 			] + $headers
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
-		if ($response['code'] !== 200) {
-			LoggerFactory::getInstance('MachineTranslation')->error(
+		if ( $response['code'] !== 200 ) {
+			LoggerFactory::getInstance( 'MachineTranslation' )->error(
 				'Request to {url} for languages returned {code}: {reason}', [
 					'url' => $url,
 					'code' => $response['code'],
@@ -90,51 +90,51 @@ class LanguageUtils {
 			return [];
 		}
 
-		return json_decode($response['body'], true);
+		return json_decode( $response['body'], true );
 	}
 
-	private function parseLibreTranslateLanguages(array $response): array {
+	private function parseLibreTranslateLanguages( array $response ): array {
 		$supportedLanguages = [];
 
-		foreach ($response as $lang) {
-			$supportedLanguages[strtoupper($lang['code'])] = $lang['name'];
+		foreach ( $response as $lang ) {
+			$supportedLanguages[strtoupper( $lang['code'] )] = $lang['name'];
 		}
 
 		return $supportedLanguages;
 	}
 
-	private function parseDeepLLanguages(array $response): array {
+	private function parseDeepLLanguages( array $response ): array {
 		$supportedLanguages = [];
 
-		foreach ($response as $lang) {
-			$supportedLanguages[strtoupper($lang['language'])] = $lang['name'];
+		foreach ( $response as $lang ) {
+			$supportedLanguages[strtoupper( $lang['language'] )] = $lang['name'];
 		}
 
 		return $supportedLanguages;
 	}
 
-	private function parseGoogleLanguages(array $response): array {
+	private function parseGoogleLanguages( array $response ): array {
 		$languages = $response['data']['languages'] ?? [];
 		$supportedLanguages = [];
 
-		foreach ($languages as $lang) {
-			$supportedLanguages[strtoupper($lang['language'])] = $lang['name'] ?? strtoupper($lang['language']);
+		foreach ( $languages as $lang ) {
+			$supportedLanguages[strtoupper( $lang['language'] )] = $lang['name'] ?? strtoupper( $lang['language'] );
 		}
 
 		return $supportedLanguages;
 	}
 
-	public function getLanguageCaption(string $code): ?string {
+	public function getLanguageCaption( string $code ): ?string {
 		$languages = $this->getSupportedLanguages();
 		return $languages[$code] ?? null;
 	}
 
-	public function isLanguageSupported(string $code): bool {
+	public function isLanguageSupported( string $code ): bool {
 		$languages = $this->getSupportedLanguages();
-		return isset($languages[$code]);
+		return isset( $languages[$code] );
 	}
 
-	public function isValidLanguageCode(string $code): bool {
-		return (bool)preg_match('/^[A-Za-z][A-Za-z](\-[A-Za-z][A-Za-z])?$/', $code);
+	public function isValidLanguageCode( string $code ): bool {
+		return (bool)preg_match( '/^[A-Za-z][A-Za-z](\-[A-Za-z][A-Za-z])?$/', $code );
 	}
 }
