@@ -106,9 +106,9 @@ class MachineTranslationUtils {
 		}
 
 		// Call API
-		$request = $this->httpRequestFactory->createMultiClient( [
-			'proxy' => $this->options->get( MainConfigNames::HTTPProxy )
-		] )->run( [
+		$request = $this->httpRequestFactory->createMultiClient(
+			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
+		)->run( [
 			'url' => $url,
 			'method' => 'POST',
 			'body' => $body,
