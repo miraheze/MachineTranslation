@@ -16,7 +16,7 @@ use MediaWiki\Title\TitleFactory;
 use MessageLocalizer;
 use Miraheze\MachineTranslation\ConfigNames;
 use Miraheze\MachineTranslation\Jobs\MachineTranslationJob;
-use Miraheze\MachineTranslation\LanguageUtils;
+use Miraheze\MachineTranslation\Services\LanguageUtils;
 use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
 use TextContent;
 
@@ -25,6 +25,7 @@ class Main {
 	private Config $config;
 	private JobQueueGroupFactory $jobQueueGroupFactory;
 	private LanguageNameUtils $languageNameUtils;
+	private LanguageUtils $languageUtils;
 	private MachineTranslationUtils $machineTranslationUtils;
 	private MessageLocalizer $messageLocalizer;
 	private TitleFactory $titleFactory;
@@ -34,12 +35,14 @@ class Main {
 		ConfigFactory $configFactory,
 		JobQueueGroupFactory $jobQueueGroupFactory,
 		LanguageNameUtils $languageNameUtils,
+		LanguageUtils $languageUtils,
 		MachineTranslationUtils $machineTranslationUtils,
 		TitleFactory $titleFactory,
 		WikiPageFactory $wikiPageFactory
 	) {
 		$this->jobQueueGroupFactory = $jobQueueGroupFactory;
 		$this->languageNameUtils = $languageNameUtils;
+		$this->languageUtils = $languageUtils;
 		$this->machineTranslationUtils = $machineTranslationUtils;
 		$this->titleFactory = $titleFactory;
 		$this->wikiPageFactory = $wikiPageFactory;
@@ -80,12 +83,12 @@ class Main {
 		}
 
 		// Language code check
-		if ( !LanguageUtils::isValidLanguageCode( $subpage ) ) {
+		if ( !$this->languageUtils->isValidLanguageCode( $subpage ) ) {
 			return;
 		}
 
 		// Accept language?
-		if ( !LanguageUtils::isLanguageSupported( strtoupper( $subpage ) ) ) {
+		if ( !$this->languageUtils->isLanguageSupported( strtoupper( $subpage ) ) ) {
 			return;
 		}
 
@@ -99,7 +102,7 @@ class Main {
 		// Get title text for replace (the base page title + language caption)
 		$languageCaption = ucfirst(
 			$this->languageNameUtils->getLanguageName( $subpage ) ?:
-			LanguageUtils::getLanguageCaption( strtoupper( $subpage ) )
+			$this->languageUtils( strtoupper( $subpage ) )
 		);
 
 		$languageTitle = '';
