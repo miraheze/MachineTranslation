@@ -2,6 +2,7 @@
 
 namespace Miraheze\MachineTranslation\Services;
 
+use ConfigException;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Logger\LoggerFactory;
@@ -14,7 +15,7 @@ class MachineTranslationUtils {
 	public const CONSTRUCTOR_OPTIONS = [
 		ConfigNames::Caching,
 		ConfigNames::CachingTime,
-		ConfigNames::LibreTranslateUrl,
+		ConfigNames::ServiceConfig,
 		ConfigNames::Timeout,
 		MainConfigNames::HTTPProxy,
 	];
@@ -36,6 +37,17 @@ class MachineTranslationUtils {
 	}
 
 	public function callTranslation( string $text, string $targetLanguage ): string {
+		switch ( strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' ) ) {
+			case 'deepl':
+				return $this->doDeepL( $text, $targetLanguage );
+			case 'libretranslate':
+				return $this->doLibreTranslate( $text, $targetLanguage );
+			default:
+				throw new ConfigException( 'Unsupported machine translation service configured.' );
+		}
+	}
+
+	private function doDeepL( string $text, string $targetLanguage ): string {
 		// Check parameters
 		if ( !$text || !$targetLanguage ) {
 			return '';
@@ -61,7 +73,62 @@ class MachineTranslationUtils {
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
-			'url' => $this->options->get( ConfigNames::LibreTranslateUrl ) . '/translate',
+			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'],
+			'method' => 'POST',
+			'body' => [
+				'target_lang' => $targetLanguage,
+				'tag_handling' => 'html',
+				'text' => $text,
+			],
+			'headers' => [
+				'user-agent' => $userAgent,
+				'authorization' => $this->options->get( ConfigNames::DeepLConfig )['apikey'],
+			]
+		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
+
+		// Check if the HTTP response code is returning 200
+		if ( $request['code'] !== 200 ) {
+			LoggerFactory::getInstance( 'MachineTranslation' )->error(
+				'Request to DeepL returned {code}: {reason}',
+				[
+					'code' => $request['code'],
+					'reason' => $request['reason'],
+				]
+			);
+			return '';
+		}
+
+		$json = json_decode( $request['body'], true );
+		return $json['translations'][0]['text'] ?? '';
+	}
+
+	private function doLibreTranslate( string $text, string $targetLanguage ): string {
+		// Check parameters
+		if ( !$text || !$targetLanguage ) {
+			return '';
+		}
+
+		if ( strlen( $text ) > 131072 ) {
+			// Exit if content length is over 128KiB
+			LoggerFactory::getInstance( 'MachineTranslation' )->error(
+				'Text to large to translate. Length: {length}',
+				[
+					'length' => strlen( $text ),
+				]
+			);
+			return '';
+		}
+
+		$targetLanguage = strtolower( $targetLanguage );
+
+		$userAgent = 'MachineTranslation, MediaWiki extension ' .
+			'(https://github.com/miraheze/MachineTranslation)';
+
+		// Call API
+		$request = $this->httpRequestFactory->createMultiClient(
+			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
+		)->run( [
+			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/translate',
 			'method' => 'POST',
 			'body' => [
 				'source' => 'auto',
@@ -77,7 +144,7 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to the machine translation service returned {code}: {reason}',
+				'Request to LibreTranslate returned {code}: {reason}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
