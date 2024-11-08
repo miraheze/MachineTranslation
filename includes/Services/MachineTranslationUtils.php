@@ -40,19 +40,6 @@ class MachineTranslationUtils {
 	}
 
 	public function callTranslation( string $text, string $targetLanguage ): string {
-		switch ( strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' ) ) {
-			case 'deepl':
-				return $this->doDeepL( $text, $targetLanguage );
-			case 'google':
-				return $this->doGoogleTranslate( $text, $targetLanguage );
-			case 'libretranslate':
-				return $this->doLibreTranslate( $text, $targetLanguage );
-			default:
-				throw new ConfigException( 'Unsupported machine translation service configured.' );
-		}
-	}
-
-	private function doDeepL( string $text, string $targetLanguage ): string {
 		// Check parameters
 		if ( !$text || !$targetLanguage ) {
 			return '';
@@ -70,7 +57,17 @@ class MachineTranslationUtils {
 		}
 
 		$targetLanguage = strtolower( $targetLanguage );
+		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 
+		return match ( $serviceType ) {
+			'deepl' => $this->doDeepL( $text, $targetLanguage ),
+			'google' => $this->doGoogleTranslate( $text, $targetLanguage ),
+			'libretranslate' => $this->doLibreTranslate( $text, $targetLanguage ),
+			default => throw new ConfigException( 'Unsupported machine translation service configured.' ),
+		};
+	}
+
+	private function doDeepL( string $text, string $targetLanguage ): string {
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
@@ -105,24 +102,6 @@ class MachineTranslationUtils {
 	}
 
 	private function doGoogleTranslate( string $text, string $targetLanguage ): string {
-		// Check parameters
-		if ( !$text || !$targetLanguage ) {
-			return '';
-		}
-
-		if ( strlen( $text ) > 131072 ) {
-			// Exit if content length is over 128KiB
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Text too large to translate. Length: {length}',
-				[
-					'length' => strlen( $text ),
-				]
-			);
-			return '';
-		}
-
-		$targetLanguage = strtolower( $targetLanguage );
-
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
@@ -157,24 +136,6 @@ class MachineTranslationUtils {
 	}
 
 	private function doLibreTranslate( string $text, string $targetLanguage ): string {
-		// Check parameters
-		if ( !$text || !$targetLanguage ) {
-			return '';
-		}
-
-		if ( strlen( $text ) > 131072 ) {
-			// Exit if content length is over 128KiB
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Text too large to translate. Length: {length}',
-				[
-					'length' => strlen( $text ),
-				]
-			);
-			return '';
-		}
-
-		$targetLanguage = strtolower( $targetLanguage );
-
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
