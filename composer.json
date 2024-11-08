@@ -9,6 +9,9 @@
 			"name": "Universal Omega"
 		}
 	],
+	"support": {
+		"issues": "https://issue-tracker.miraheze.org/tag/machinetranslation/"
+	},
 	"require": {
 		"composer/installers": ">=1.0.1",
 		"php-ai/php-ml": "*"
