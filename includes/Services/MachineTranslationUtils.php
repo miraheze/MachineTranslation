@@ -132,7 +132,7 @@ class MachineTranslationUtils {
 		$json = json_decode( $request['body'], true );
 		return match ( $serviceType ) {
 			'deepl' => $json['translations'][0]['text'] ?? '',
-			'googletranslate' => $json['data']['translations'][0]['translatedText'] ?? '',
+			'google' => $json['data']['translations'][0]['translatedText'] ?? '',
 			'libretranslate' => $json['translatedText'] ?? '',
 			default => '',
 		};
