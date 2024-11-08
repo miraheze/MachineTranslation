@@ -59,6 +59,7 @@ class MachineTranslationUtils {
 		}
 
 		if ( strlen( $text ) > 131072 ) {
+			// Exit if content length is over 128KiB
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
 				'Text too large to translate. Length: {length}',
 				[
