@@ -1,7 +1,7 @@
 <?php
 
 // phpcs:disable Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
-namespace Miraheze\MachineTranslate;
+namespace Miraheze\MachineTranslation;
 
 /**
  * A class containing constants representing the names of configuration variables,
@@ -9,19 +9,19 @@ namespace Miraheze\MachineTranslate;
  */
 class ConfigNames {
 
-	public const Caching = 'MachineTranslateCaching';
+	public const Caching = 'MachineTranslationCaching';
 
-	public const CachingTime = 'MachineTranslateCachingTime';
+	public const CachingTime = 'MachineTranslationCachingTime';
 
-	public const LibreTranslateUrl = 'MachineTranslateLibreTranslateUrl';
+	public const LibreTranslateUrl = 'MachineTranslationLibreTranslateUrl';
 
-	public const RobotPolicy = 'MachineTranslateRobotPolicy';
+	public const RobotPolicy = 'MachineTranslationRobotPolicy';
 
-	public const SuppressLanguageCaption = 'MachineTranslateSuppressLanguageCaption';
+	public const SuppressLanguageCaption = 'MachineTranslationSuppressLanguageCaption';
 
-	public const Timeout = 'MachineTranslateTimeout';
+	public const Timeout = 'MachineTranslationTimeout';
 
-	public const TranslateTitle = 'MachineTranslateTranslateTitle';
+	public const TranslateTitle = 'MachineTranslationTranslateTitle';
 
-	public const UseJobQueue = 'MachineTranslateUseJobQueue';
+	public const UseJobQueue = 'MachineTranslationUseJobQueue';
 }

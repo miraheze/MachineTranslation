@@ -1,6 +1,6 @@
 <?php
 
-namespace Miraheze\MachineTranslate;
+namespace Miraheze\MachineTranslation;
 
 class LanguageUtils {
 

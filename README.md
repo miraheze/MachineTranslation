@@ -1,4 +1,4 @@
-# MachineTranslate
+# MachineTranslation
 An extension to provide machine translation by using an API service.
 
 Developed by Universal Omega.

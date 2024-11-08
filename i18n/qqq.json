@@ -4,7 +4,7 @@
 			"Universal Omega"
 		]
 	},
-	"machinetranslate-desc": "{{desc|name=MachineTranslate|url=https://github.com/miraheze/MachineTranslate}}",
-	"machinetranslate-extensionname": "{{name}}",
-	"machinetranslate-processing": "Message displayed when the MachineTranslate job is still processing the translation."
+	"machinetranslation-desc": "{{desc|name=MachineTranslation|url=https://github.com/miraheze/MachineTranslation}}",
+	"machinetranslation-extensionname": "{{name}}",
+	"machinetranslation-processing": "Message displayed when the MachineTranslation job is still processing the translation."
 }

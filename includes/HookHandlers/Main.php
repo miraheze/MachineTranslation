@@ -1,6 +1,6 @@
 <?php
 
-namespace Miraheze\MachineTranslate\HookHandlers;
+namespace Miraheze\MachineTranslation\HookHandlers;
 
 use Article;
 use JobSpecification;
@@ -14,10 +14,10 @@ use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
 use MessageLocalizer;
-use Miraheze\MachineTranslate\ConfigNames;
-use Miraheze\MachineTranslate\Jobs\MachineTranslateJob;
-use Miraheze\MachineTranslate\LanguageUtils;
-use Miraheze\MachineTranslate\Services\MachineTranslateUtils;
+use Miraheze\MachineTranslation\ConfigNames;
+use Miraheze\MachineTranslation\Jobs\MachineTranslationJob;
+use Miraheze\MachineTranslation\LanguageUtils;
+use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
 use TextContent;
 
 class Main {
@@ -25,7 +25,7 @@ class Main {
 	private Config $config;
 	private JobQueueGroupFactory $jobQueueGroupFactory;
 	private LanguageNameUtils $languageNameUtils;
-	private MachineTranslateUtils $machineTranslateUtils;
+	private MachineTranslationUtils $machineTranslationUtils;
 	private MessageLocalizer $messageLocalizer;
 	private TitleFactory $titleFactory;
 	private WikiPageFactory $wikiPageFactory;
@@ -34,17 +34,17 @@ class Main {
 		ConfigFactory $configFactory,
 		JobQueueGroupFactory $jobQueueGroupFactory,
 		LanguageNameUtils $languageNameUtils,
-		MachineTranslateUtils $machineTranslateUtils,
+		MachineTranslationUtils $machineTranslationUtils,
 		TitleFactory $titleFactory,
 		WikiPageFactory $wikiPageFactory
 	) {
 		$this->jobQueueGroupFactory = $jobQueueGroupFactory;
 		$this->languageNameUtils = $languageNameUtils;
-		$this->machineTranslateUtils = $machineTranslateUtils;
+		$this->machineTranslationUtils = $machineTranslationUtils;
 		$this->titleFactory = $titleFactory;
 		$this->wikiPageFactory = $wikiPageFactory;
 
-		$this->config = $configFactory->makeConfig( 'MachineTranslate' );
+		$this->config = $configFactory->makeConfig( 'MachineTranslation' );
 		$this->messageLocalizer = RequestContext::getMain();
 	}
 
@@ -107,14 +107,14 @@ class Main {
 			$titleText = $baseTitle->getTitleValue()->getText();
 			if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 				$titleCacheKey = $cacheKey . '-title';
-				$titleText = $this->machineTranslateUtils->getCache( $titleCacheKey );
+				$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
 				if ( !$titleText && !$this->config->get( ConfigNames::UseJobQueue ) ) {
-					$titleText = $this->machineTranslateUtils->callTranslation(
+					$titleText = $this->machineTranslationUtils->callTranslation(
 						$baseTitle->getTitleValue()->getText(),
 						$subpage
 					);
 
-					$this->machineTranslateUtils->storeCache( $titleCacheKey, $titleText );
+					$this->machineTranslationUtils->storeCache( $titleCacheKey, $titleText );
 				}
 			}
 
@@ -135,10 +135,10 @@ class Main {
 		$out = $article->getContext()->getOutput();
 
 		// Get cache if enabled
-		$contentCache = $this->machineTranslateUtils->getCache( $cacheKey );
+		$contentCache = $this->machineTranslationUtils->getCache( $cacheKey );
 		$text = $contentCache;
 
-		$titleTextCache = $this->machineTranslateUtils->getCache( $cacheKey . '-title' );
+		$titleTextCache = $this->machineTranslationUtils->getCache( $cacheKey . '-title' );
 		$needsTitleText = !$titleTextCache && !$this->config->get( ConfigNames::SuppressLanguageCaption ) &&
 			$this->config->get( ConfigNames::TranslateTitle ) &&
 			$this->config->get( ConfigNames::UseJobQueue );
@@ -158,11 +158,11 @@ class Main {
 
 			// Do translation
 			if ( $this->config->get( ConfigNames::UseJobQueue ) ) {
-				if ( !$this->machineTranslateUtils->getCache( $cacheKey . '-progress' ) ) {
+				if ( !$this->machineTranslationUtils->getCache( $cacheKey . '-progress' ) ) {
 					$jobQueueGroup = $this->jobQueueGroupFactory->makeJobQueueGroup();
 					$jobQueueGroup->push(
 						new JobSpecification(
-							MachineTranslateJob::JOB_NAME,
+							MachineTranslationJob::JOB_NAME,
 							[
 								'cachekey' => $cacheKey,
 								'content' => $out->parseAsContent( $text ),
@@ -174,16 +174,16 @@ class Main {
 				}
 
 				if ( !$contentCache ) {
-					$message = 'machinetranslate-processing';
+					$message = 'machinetranslation-processing';
 
 					// Store cache if enabled
-					$this->machineTranslateUtils->storeCache( $cacheKey . '-progress', $message );
+					$this->machineTranslationUtils->storeCache( $cacheKey . '-progress', $message );
 					$text = Html::noticeBox(
 						$this->messageLocalizer->msg( $message )->escaped(), ''
 					);
 				}
 			} else {
-				$text = $this->machineTranslateUtils->callTranslation(
+				$text = $this->machineTranslationUtils->callTranslation(
 					$out->parseAsContent( $text ),
 					$subpage
 				);
@@ -193,7 +193,7 @@ class Main {
 				}
 
 				// Store cache if enabled
-				$this->machineTranslateUtils->storeCache( $cacheKey, $text );
+				$this->machineTranslationUtils->storeCache( $cacheKey, $text );
 			}
 		}
 
