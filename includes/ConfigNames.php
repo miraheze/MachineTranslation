@@ -13,9 +13,9 @@ class ConfigNames {
 
 	public const CachingTime = 'MachineTranslationCachingTime';
 
-	public const LibreTranslateUrl = 'MachineTranslationLibreTranslateUrl';
-
 	public const RobotPolicy = 'MachineTranslationRobotPolicy';
+
+	public const ServiceConfig = 'MachineTranslationServiceConfig';
 
 	public const SuppressLanguageCaption = 'MachineTranslationSuppressLanguageCaption';
 
