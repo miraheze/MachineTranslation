@@ -2,7 +2,7 @@
 	"name": "miraheze/machine-translation",
 	"type": "mediawiki-extension",
 	"description": "A MediaWiki extension to provide machine translation.",
-	"homepage": "https://github.com/miraheze/MachineTranslation",
+	"homepage": "https://www.mediawiki.org/wiki/Extension:MachineTranslation",
 	"license": "GPL-3.0-or-later",
 	"authors": [
 		{
@@ -10,7 +10,8 @@
 		}
 	],
 	"support": {
-		"issues": "https://issue-tracker.miraheze.org/tag/machinetranslation/"
+		"issues": "https://issue-tracker.miraheze.org/tag/machinetranslation/",
+		"wiki": "https://www.mediawiki.org/wiki/Extension:MachineTranslation"
 	},
 	"require": {
 		"composer/installers": ">=1.0.1",
