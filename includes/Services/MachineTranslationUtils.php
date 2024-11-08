@@ -20,6 +20,12 @@ class MachineTranslationUtils {
 		MainConfigNames::HTTPProxy,
 	];
 
+	private const SUPPORTED_SERVICES = [
+		'deepl',
+		'google',
+		'libretranslate',
+	];
+
 	private const USER_AGENT = 'MachineTranslation, MediaWiki extension ' .
 		'(https://github.com/miraheze/MachineTranslation)';
 
@@ -43,27 +49,10 @@ class MachineTranslationUtils {
 		$serviceConfig = $this->options->get( ConfigNames::ServiceConfig );
 		$serviceType = strtolower( $serviceConfig['type'] ?? '' );
 
-		switch ( $serviceType ) {
-			case 'deepl':
-			case 'googletranslate':
-			case 'libretranslate':
-				return $this->callApiService(
-					$serviceType,
-					$text,
-					$targetLanguage,
-					$serviceConfig
-				);
-			default:
-				throw new ConfigException( 'Unsupported machine translation service configured.' );
+		if ( !in_array( $serviceType, self::SUPPORTED_SERVICES ) ) {
+			throw new ConfigException( 'Unsupported machine translation service configured.' );
 		}
-	}
 
-	private function callApiService(
-		string $serviceType,
-		string $text,
-		string $targetLanguage,
-		array $serviceConfig
-	): string {
 		// Check parameters
 		if ( !$text || !$targetLanguage || strlen( $text ) > 131072 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
@@ -91,7 +80,7 @@ class MachineTranslationUtils {
 				];
 				$headers['authorization'] = 'DeepL-Auth-Key ' . $apiKey;
 				break;
-			case 'googletranslate':
+			case 'google':
 				$body = [
 					'q' => $text,
 					'target' => $targetLanguage,
@@ -125,7 +114,7 @@ class MachineTranslationUtils {
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
-					'service' => ucfirst( $serviceType ),
+					'service' => $serviceType,
 				]
 			);
 			return '';
