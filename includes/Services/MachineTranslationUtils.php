@@ -82,7 +82,7 @@ class MachineTranslationUtils {
 			],
 			'headers' => [
 				'user-agent' => $userAgent,
-				'authorization' => $this->options->get( ConfigNames::DeepLConfig )['apikey'],
+				'authorization' => $this->options->get( ConfigNames::ServiceConfig )['apikey'],
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
