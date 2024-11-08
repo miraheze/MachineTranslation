@@ -92,6 +92,7 @@ class MachineTranslationUtils {
 					'format' => 'html',
 					'key' => $apiKey,
 				];
+				$url = 'https://translation.googleapis.com/language/translate/v2';
 				break;
 			case 'libretranslate':
 				$body = [
@@ -100,8 +101,7 @@ class MachineTranslationUtils {
 					'format' => 'html',
 					'q' => $text,
 				];
-
-				$url = 'https://translation.googleapis.com/language/translate/v2';
+				$url .= '/translate';
 				break;
 		}
 
