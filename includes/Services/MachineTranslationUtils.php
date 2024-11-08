@@ -54,6 +54,9 @@ class MachineTranslationUtils {
 
 		$targetLanguage = strtolower( $targetLanguage );
 
+		$userAgent = 'MachineTranslation, MediaWiki extension ' .
+			'(https://github.com/miraheze/MachineTranslation)';
+
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
@@ -67,7 +70,7 @@ class MachineTranslationUtils {
 				'q' => $text,
 			],
 			'headers' => [
-				'user-agent' => 'MachineTranslation, MediaWiki extension (https://github.com/miraheze/MachineTranslation)',
+				'user-agent' => $userAgent,
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
