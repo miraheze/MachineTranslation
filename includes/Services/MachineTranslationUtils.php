@@ -95,6 +95,8 @@ class MachineTranslationUtils {
 					'format' => 'html',
 					'q' => $text,
 				];
+
+				$url = 'https://translation.googleapis.com/language/translate/v2';
 				break;
 		}
 
