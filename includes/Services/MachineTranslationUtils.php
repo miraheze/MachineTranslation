@@ -32,18 +32,18 @@ class MachineTranslationUtils {
 		ObjectCacheFactory $objectCacheFactory,
 		ServiceOptions $options
 	) {
-		$options->assertRequiredOptions(self::CONSTRUCTOR_OPTIONS);
+		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
 		$this->httpRequestFactory = $httpRequestFactory;
 		$this->objectCacheFactory = $objectCacheFactory;
 		$this->options = $options;
 	}
 
-	public function callTranslation(string $text, string $targetLanguage): string {
-		$serviceConfig = $this->options->get(ConfigNames::ServiceConfig);
-		$serviceType = strtolower($serviceConfig['type'] ?? '');
+	public function callTranslation( string $text, string $targetLanguage ): string {
+		$serviceConfig = $this->options->get( ConfigNames::ServiceConfig );
+		$serviceType = strtolower( $serviceConfig['type'] ?? '' );
 
-		switch ($serviceType) {
+		switch ( $serviceType ) {
 			case 'deepl':
 			case 'googletranslate':
 			case 'libretranslate':
@@ -54,7 +54,7 @@ class MachineTranslationUtils {
 					$serviceConfig
 				);
 			default:
-				throw new ConfigException('Unsupported machine translation service configured.');
+				throw new ConfigException( 'Unsupported machine translation service configured.' );
 		}
 	}
 
@@ -65,24 +65,24 @@ class MachineTranslationUtils {
 		array $serviceConfig
 	): string {
 		// Check parameters
-		if (!$text || !$targetLanguage || strlen($text) > 131072) {
-			LoggerFactory::getInstance('MachineTranslation')->error(
+		if ( !$text || !$targetLanguage || strlen( $text ) > 131072 ) {
+			LoggerFactory::getInstance( 'MachineTranslation' )->error(
 				'Text too large to translate. Length: {length}',
 				[
-					'length' => strlen($text),
+					'length' => strlen( $text ),
 				]
 			);
 			return '';
 		}
 
-		$targetLanguage = strtolower($targetLanguage);
+		$targetLanguage = strtolower( $targetLanguage );
 		$url = $serviceConfig['url'] ?? '';
 		$apiKey = $serviceConfig['apikey'] ?? '';
 
 		// Build the request body and headers based on service type
 		$body = [];
 		$headers = [ 'user-agent' => self::USER_AGENT ];
-		switch ($serviceType) {
+		switch ( $serviceType ) {
 			case 'deepl':
 				$body = [
 					'target_lang' => $targetLanguage,
@@ -116,24 +116,24 @@ class MachineTranslationUtils {
 			'method' => 'POST',
 			'body' => $body,
 			'headers' => $headers
-		], [ 'reqTimeout' => $this->options->get(ConfigNames::Timeout) ] );
+		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
 		// Check if the HTTP response code is returning 200
-		if ($request['code'] !== 200) {
-			LoggerFactory::getInstance('MachineTranslation')->error(
+		if ( $request['code'] !== 200 ) {
+			LoggerFactory::getInstance( 'MachineTranslation' )->error(
 				'Request to {service} returned {code}: {reason}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
-					'service' => ucfirst($serviceType),
+					'service' => ucfirst( $serviceType ),
 				]
 			);
 			return '';
 		}
 
 		// Return the translated text in the correct format based on the service type
-		$json = json_decode($request['body'], true);
-		return match ($serviceType) {
+		$json = json_decode( $request['body'], true );
+		return match ( $serviceType ) {
 			'deepl' => $json['translations'][0]['text'] ?? '',
 			'googletranslate' => $json['data']['translations'][0]['translatedText'] ?? '',
 			'libretranslate' => $json['translatedText'] ?? '',
@@ -141,39 +141,39 @@ class MachineTranslationUtils {
 		};
 	}
 
-	public function storeCache(string $key, string $value): bool {
-		if (!$this->options->get(ConfigNames::Caching)) {
+	public function storeCache( string $key, string $value ): bool {
+		if ( !$this->options->get( ConfigNames::Caching ) ) {
 			return false;
 		}
 
-		$cache = $this->objectCacheFactory->getInstance(CACHE_ANYTHING);
-		$cacheKey = $cache->makeKey('MachineTranslation', $key);
-		return $cache->set($cacheKey, $value, $this->options->get(ConfigNames::CachingTime));
+		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
+		$cacheKey = $cache->makeKey( 'MachineTranslation', $key );
+		return $cache->set( $cacheKey, $value, $this->options->get( ConfigNames::CachingTime ) );
 	}
 
-	public function getCache(string $key): bool|string {
-		if (!$this->options->get(ConfigNames::Caching)) {
+	public function getCache( string $key ): bool|string {
+		if ( !$this->options->get( ConfigNames::Caching ) ) {
 			return false;
 		}
 
-		$cache = $this->objectCacheFactory->getInstance(CACHE_ANYTHING);
-		$cacheKey = $cache->makeKey('MachineTranslation', $key);
+		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
+		$cacheKey = $cache->makeKey( 'MachineTranslation', $key );
 
-		if ($this->options->get(ConfigNames::CachingTime) === 0) {
-			$cache->delete($cacheKey);
+		if ( $this->options->get( ConfigNames::CachingTime ) === 0 ) {
+			$cache->delete( $cacheKey );
 			return false;
 		}
 
-		return $cache->get($cacheKey);
+		return $cache->get( $cacheKey );
 	}
 
-	public function deleteCache(string $key): void {
-		if (!$this->options->get(ConfigNames::Caching)) {
+	public function deleteCache( string $key ): void {
+		if ( !$this->options->get( ConfigNames::Caching ) ) {
 			return;
 		}
 
-		$cache = $this->objectCacheFactory->getInstance(CACHE_ANYTHING);
-		$cacheKey = $cache->makeKey('MachineTranslation', $key);
-		$cache->delete($cacheKey);
+		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
+		$cacheKey = $cache->makeKey( 'MachineTranslation', $key );
+		$cache->delete( $cacheKey );
 	}
 }
