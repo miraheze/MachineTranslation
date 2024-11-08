@@ -4,7 +4,7 @@
 			"Universal Omega"
 		]
 	},
-	"machinetranslation-desc": "Provides machine translation by using an API service.",
+	"machinetranslation-desc": "Provides support for using machine translation services.",
 	"machinetranslation-extensionname": "MachineTranslation",
 	"machinetranslation-processing": "This translation is currently processing. Please check back later..."
 }
