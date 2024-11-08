@@ -1,5 +1,5 @@
-# LibreTranslate
-An extension to provide machine translation by using a LibreTranslate API instance.
+# MachineTranslate
+An extension to provide machine translation by using an API service.
 
 Developed by Universal Omega.
 

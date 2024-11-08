@@ -2,16 +2,16 @@
 
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\MediaWikiServices;
-use Miraheze\LibreTranslate\Services\LibreTranslateUtils;
+use Miraheze\MachineTranslate\Services\MachineTranslateUtils;
 
 return [
-	'LibreTranslateUtils' => static function ( MediaWikiServices $services ): LibreTranslateUtils {
-		return new LibreTranslateUtils(
+	'MachineTranslateUtils' => static function ( MediaWikiServices $services ): MachineTranslateUtils {
+		return new MachineTranslateUtils(
 			$services->getHttpRequestFactory(),
 			$services->getObjectCacheFactory(),
 			new ServiceOptions(
-				LibreTranslateUtils::CONSTRUCTOR_OPTIONS,
-				$services->getConfigFactory()->makeConfig( 'LibreTranslate' )
+				MachineTranslateUtils::CONSTRUCTOR_OPTIONS,
+				$services->getConfigFactory()->makeConfig( 'MachineTranslate' )
 			)
 		);
 	},

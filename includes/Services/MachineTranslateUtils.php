@@ -1,15 +1,15 @@
 <?php
 
-namespace Miraheze\LibreTranslate\Services;
+namespace Miraheze\MachineTranslate\Services;
 
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
-use Miraheze\LibreTranslate\ConfigNames;
+use Miraheze\MachineTranslate\ConfigNames;
 use ObjectCacheFactory;
 
-class LibreTranslateUtils {
+class MachineTranslateUtils {
 
 	public const CONSTRUCTOR_OPTIONS = [
 		ConfigNames::Caching,
@@ -43,8 +43,8 @@ class LibreTranslateUtils {
 
 		if ( strlen( $text ) > 131072 ) {
 			// Exit if content length is over 128KiB
-			LoggerFactory::getInstance( 'LibreTranslate' )->error(
-				'Text to large to translate with LibreTranslate. Length: {length}',
+			LoggerFactory::getInstance( 'MachineTranslate' )->error(
+				'Text to large to translate. Length: {length}',
 				[
 					'length' => strlen( $text ),
 				]
@@ -58,7 +58,7 @@ class LibreTranslateUtils {
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
-			'url' => $this->options->get( ConfigNames::Url ) . '/translate',
+			'url' => $this->options->get( ConfigNames::LibreTranslateUrl ) . '/translate',
 			'method' => 'POST',
 			'body' => [
 				'source' => 'auto',
@@ -67,14 +67,14 @@ class LibreTranslateUtils {
 				'q' => $text,
 			],
 			'headers' => [
-				'user-agent' => 'LibreTranslate MediaWiki extension (https://github.com/miraheze/LibreTranslate)',
+				'user-agent' => 'MachineTranslate, MediaWiki extension (https://github.com/miraheze/MachineTranslate)',
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
-			LoggerFactory::getInstance( 'LibreTranslate' )->error(
-				'Request to the LibreTranslate instance returned {code}: {reason}',
+			LoggerFactory::getInstance( 'MachineTranslate' )->error(
+				'Request to the machine translation service returned {code}: {reason}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
@@ -93,7 +93,7 @@ class LibreTranslateUtils {
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'LibreTranslate', $key );
+		$cacheKey = $cache->makeKey( 'MachineTranslate', $key );
 		return $cache->set( $cacheKey, $value, $this->options->get( ConfigNames::CachingTime ) );
 	}
 
@@ -103,7 +103,7 @@ class LibreTranslateUtils {
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'LibreTranslate', $key );
+		$cacheKey = $cache->makeKey( 'MachineTranslate', $key );
 
 		if ( $this->options->get( ConfigNames::CachingTime ) === 0 ) {
 			$cache->delete( $cacheKey );
@@ -119,7 +119,7 @@ class LibreTranslateUtils {
 		}
 
 		$cache = $this->objectCacheFactory->getInstance( CACHE_ANYTHING );
-		$cacheKey = $cache->makeKey( 'LibreTranslate', $key );
+		$cacheKey = $cache->makeKey( 'MachineTranslate', $key );
 
 		$cache->delete( $cacheKey );
 	}

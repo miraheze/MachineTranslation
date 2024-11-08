@@ -1,8 +1,8 @@
 {
-	"name": "miraheze/libre-translate",
+	"name": "miraheze/machine-translate",
 	"type": "mediawiki-extension",
-	"description": "A MediaWiki extension to translate pages using a LibreTranslate instance.",
-	"homepage": "https://github.com/miraheze/LibreTranslate",
+	"description": "A MediaWiki extension to auto translate pages.",
+	"homepage": "https://github.com/miraheze/MachineTranslate",
 	"license": "GPL-3.0-or-later",
 	"authors": [
 		{

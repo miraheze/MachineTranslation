@@ -4,7 +4,7 @@
 			"Universal Omega"
 		]
 	},
-	"libretranslate-desc": "Provides machine translation by using a LibreTranslate API instance.",
-	"libretranslate-extensionname": "LibreTranslate",
-	"libretranslate-processing": "This translation is currently processing. Please check back later..."
+	"machinetranslate-desc": "Provides machine translation by using an API service.",
+	"machinetranslate-extensionname": "MachineTranslate",
+	"machinetranslate-processing": "This translation is currently processing. Please check back later..."
 }
