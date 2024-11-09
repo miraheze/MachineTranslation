@@ -106,12 +106,6 @@ class Main {
 
 		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . $languageCode;
 
-		// Get title text for replace (the base page title + language caption)
-		$languageCaption = ucfirst(
-			$this->languageNameUtils->getLanguageName( $languageCode ) ?:
-			$this->machineTranslationLanguages->getLanguageCaption( $languageCode )
-		);
-
 		$baseCode = $baseTitle->getPageLanguage()->getCode();
 
 		$source = array_flip(
@@ -122,29 +116,34 @@ class Main {
 			$this->machineTranslationLanguages->getLanguageCodeMap()
 		)[$languageCode] ?? $languageCode;
 
-		$languageTitle = '';
-		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
-			$titleText = $baseTitle->getTitleValue()->getText();
-			if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
-				$titleCacheKey = $cacheKey . '-title';
-				$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
-				if ( !$titleText && !$this->config->get( ConfigNames::UseJobQueue ) ) {
-					$titleText = $this->machineTranslationUtils->callTranslation(
-						$baseTitle->getTitleValue()->getText(),
-						$source, $target
-					);
-
-					$this->machineTranslationUtils->storeCache( $titleCacheKey, $titleText );
-				}
-			}
-
-			$languageTitle = ( $titleText ?: $baseTitle->getTitleValue()->getText() ) .
-				Html::element( 'span',
-					[
-						  'class' => 'target-language',
-					],
-					' (' . $languageCaption . ')'
+		$titleText = $baseTitle->getTitleValue()->getText();
+		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
+			$titleCacheKey = $cacheKey . '-title';
+			$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
+			if ( !$titleText && !$this->config->get( ConfigNames::UseJobQueue ) ) {
+				$titleText = $this->machineTranslationUtils->callTranslation(
+					$baseTitle->getTitleValue()->getText(),
+					$source, $target
 				);
+
+				$this->machineTranslationUtils->storeCache( $titleCacheKey, $titleText );
+			}
+		}
+
+		$languageTitle = $titleText ?: $baseTitle->getTitleValue()->getText();
+		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
+			// Get title text for replace (the base page title + language caption)
+			$languageCaption = $this->messageLocalizer( 'parentheses', ucfirst(
+				$this->languageNameUtils->getLanguageName( $languageCode ) ?:
+				$this->machineTranslationLanguages->getLanguageCaption( $languageCode )
+			) )->text();
+
+			$languageTitle .= Html::element( 'span',
+				[
+					'class' => 'target-language',
+				],
+				' ' . $languageCaption
+			);
 		}
 
 		$out = $article->getContext()->getOutput();
@@ -154,7 +153,7 @@ class Main {
 		$text = $contentCache;
 
 		$titleTextCache = $this->machineTranslationUtils->getCache( $cacheKey . '-title' );
-		$needsTitleText = !$titleTextCache && !$this->config->get( ConfigNames::SuppressLanguageCaption ) &&
+		$needsTitleText = !$titleTextCache &&
 			$this->config->get( ConfigNames::TranslateTitle ) &&
 			$this->config->get( ConfigNames::UseJobQueue );
 
@@ -217,10 +216,8 @@ class Main {
 		$out->clearHTML();
 		$out->addHTML( $text );
 
-		// Language caption
-		if ( $languageTitle ) {
-			$out->setPageTitle( $languageTitle );
-		}
+		// Page title (from base page) and language caption (if not suppressed)
+		$out->setPageTitle( $languageTitle );
 
 		// Set robot policy
 		if ( $this->config->get( ConfigNames::RobotPolicy ) ) {
