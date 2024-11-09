@@ -54,8 +54,7 @@ class MachineTranslationJob extends Job {
 		// Store cache if enabled
 		$this->machineTranslationUtils->storeCache( $this->cacheKey, $translatedText );
 
-		$hasCaption = !$this->config->get( ConfigNames::SuppressLanguageCaption );
-		if ( $hasCaption && $this->config->get( ConfigNames::TranslateTitle ) ) {
+		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 			$titleCacheKey = $this->cacheKey . '-title';
 			$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
 			if ( !$titleText ) {
