@@ -17,7 +17,8 @@ class MachineTranslationJob extends Job {
 
 	private string $cacheKey;
 	private string $content;
-	private string $subpage;
+	private string $source;
+	private string $target;
 	private string $titleText;
 
 	public function __construct(
@@ -32,7 +33,8 @@ class MachineTranslationJob extends Job {
 
 		$this->cacheKey = $params['cachekey'];
 		$this->content = $params['content'];
-		$this->subpage = $params['subpage'];
+		$this->source = $params['source'];
+		$this->target = $params['target'];
 		$this->titleText = $params['titletext'];
 	}
 
@@ -40,7 +42,7 @@ class MachineTranslationJob extends Job {
 		$translatedText = $this->machineTranslationUtils->getCache( $this->cacheKey );
 		if ( !$translatedText ) {
 			$translatedText = $this->machineTranslationUtils->callTranslation(
-				$this->content, $this->subpage
+				$this->content, $this->source, $this->target
 			);
 		}
 
@@ -52,13 +54,12 @@ class MachineTranslationJob extends Job {
 		// Store cache if enabled
 		$this->machineTranslationUtils->storeCache( $this->cacheKey, $translatedText );
 
-		$hasCaption = !$this->config->get( ConfigNames::SuppressLanguageCaption );
-		if ( $hasCaption && $this->config->get( ConfigNames::TranslateTitle ) ) {
+		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 			$titleCacheKey = $this->cacheKey . '-title';
 			$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
 			if ( !$titleText ) {
 				$titleText = $this->machineTranslationUtils->callTranslation(
-					$this->titleText, $this->subpage
+					$this->titleText, $this->source, $this->target
 				);
 
 				$this->machineTranslationUtils->storeCache( $titleCacheKey, $titleText );

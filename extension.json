@@ -42,6 +42,7 @@
 				"ConfigFactory",
 				"JobQueueGroupFactory",
 				"LanguageNameUtils",
+				"MachineTranslationLanguageFetcher",
 				"MachineTranslationUtils",
 				"TitleFactory",
 				"WikiPageFactory"
@@ -57,31 +58,31 @@
 			"description": "Integer. The time in seconds to cache translations for.",
 			"value": 86400
 		},
+		"MachineTranslationDisplayLanguageName": {
+			"description": "Boolean. Whether to display the language name in parentheses next to the page title on translation subpages. You may want to disable this if translate title is enabled.",
+			"value": true
+		},
 		"MachineTranslationRobotPolicy": {
 			"description": "String. The robot policy to use for translation subpages.",
 			"value": ""
 		},
 		"MachineTranslationServiceConfig": {
-			"description": "Array. Configure the machine translation service. type: <required, the name of the service, allowed values: DeepL, Google, LibreTranslate>; url: <optional, required if using DeepL or LibreTranslate, the API URL for the machine translation service>; apikey: <optional, required if using DeepL or Google Translate, the API key for the machine translation service>",
+			"description": "Array. Configure the machine translation service. type: <required, the name of the service, allowed values: DeepL, Google, LibreTranslate>; url: <optional, required if using DeepL or LibreTranslate, the base API URL for the machine translation service>; apikey: <optional, required if using DeepL or Google Translate, the API key for the machine translation service>",
 			"value": {
 				"type": "LibreTranslate",
 				"url": "https://trans.zillyhuhn.com"
 			}
 		},
-		"MachineTranslationSuppressLanguageCaption": {
-			"description": "Boolean. Whether to suppress (disable) the language caption on translation subpages.",
-			"value": false
-		},
 		"MachineTranslationTimeout": {
-			"description": "Integer. The time in seconds before connecting to the MachineTranslation instance will timeout.",
+			"description": "Integer. The time in seconds before connecting to the machine translation service will timeout.",
 			"value": 86400
 		},
 		"MachineTranslationTranslateTitle": {
-			"description": "Boolean. Whether to also translate the page title. This will create an extra request to the translation API.",
+			"description": "Boolean. Whether to also translate the page title. This will create an extra request to the machine translation service.",
 			"value": false
 		},
 		"MachineTranslationUseJobQueue": {
-			"description": "Boolean. Whether to use the job queue for processing translations.",
+			"description": "Boolean. Whether to use the job queue for processing translations. This will not work if you do not have caching enabled and have a sensible expiry configured.",
 			"value": true
 		}
 	},
