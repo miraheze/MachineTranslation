@@ -55,7 +55,6 @@ class LanguageUtils {
 		return match ( $serviceType ) {
 			'libretranslate' => [
 				'zt' => 'zh-hant',
-				'zh' => 'zh-hans',
 			],
 			default => [],
 		};
