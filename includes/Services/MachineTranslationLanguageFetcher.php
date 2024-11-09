@@ -41,6 +41,7 @@ class MachineTranslationLanguageFetcher {
 			'deepl' => $this->fetchDeepLSupportedLanguages(),
 			'google' => $this->fetchGoogleSupportedLanguages(),
 			'libretranslate' => $this->fetchLibreTranslateSupportedLanguages(),
+			'lingva' => $this->fetchLingvaSupportedLanguages(),
 			default => throw new ConfigException( 'Unsupported translation service configured.' ),
 		};
 
@@ -69,6 +70,12 @@ class MachineTranslationLanguageFetcher {
 		$url = $this->options->get( ConfigNames::ServiceConfig )['url'] . '/languages';
 		$response = $this->makeRequest( $url, [], [] );
 		return $this->parseLibreTranslateLanguages( $response );
+	}
+
+	private function fetchLingvaSupportedLanguages(): array {
+		$url = $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/v1/languages';
+		$response = $this->makeRequest( $url, [], [] );
+		return $this->parseLingvaLanguages( $response );
 	}
 
 	private function makeRequest( string $url, array $query, array $headers ): array {
@@ -104,18 +111,6 @@ class MachineTranslationLanguageFetcher {
 		return json_decode( $response['body'], true );
 	}
 
-	private function parseLibreTranslateLanguages( array $response ): array {
-		$supportedLanguages = [];
-		$languageMap = $this->getLanguageCodeMap();
-
-		foreach ( $response as $lang ) {
-			$code = $languageMap[$lang['code']] ?? $lang['code'];
-			$supportedLanguages[strtolower( $code )] = $lang['name'];
-		}
-
-		return $supportedLanguages;
-	}
-
 	private function parseDeepLLanguages( array $response ): array {
 		$supportedLanguages = [];
 
@@ -137,11 +132,43 @@ class MachineTranslationLanguageFetcher {
 		return $supportedLanguages;
 	}
 
+	private function parseLibreTranslateLanguages( array $response ): array {
+		$supportedLanguages = [];
+		$languageMap = $this->getLanguageCodeMap();
+
+		foreach ( $response as $lang ) {
+			$code = $languageMap[$lang['code']] ?? $lang['code'];
+			$supportedLanguages[strtolower( $code )] = $lang['name'];
+		}
+
+		return $supportedLanguages;
+	}
+
+	private function parseLingvaLanguages( array $response ): array {
+		$languages = $response['languages'] ?? [];
+		$supportedLanguages = [];
+		$languageMap = $this->getLanguageCodeMap();
+
+		foreach ( $languages as $lang ) {
+			if ( $lang['code'] === 'auto' ) {
+				continue;
+			}
+
+			$code = $languageMap[$lang['code']] ?? $lang['code'];
+			$supportedLanguages[strtolower( $code )] = $lang['name'];
+		}
+
+		return $supportedLanguages;
+	}
+
 	public function getLanguageCodeMap(): array {
 		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 		return match ( $serviceType ) {
 			'libretranslate' => [
 				'zt' => 'zh-hant',
+			],
+			'lingva' => [
+				'zh_HANT' => 'zh-hant',
 			],
 			default => [],
 		};
