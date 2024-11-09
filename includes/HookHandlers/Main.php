@@ -82,8 +82,10 @@ class Main {
 			return;
 		}
 
+		$languageCode = strtolower( $subpage );
+
 		// Language code check
-		if ( !$this->languageNameUtils->isValidCode( $subpage ) ) {
+		if ( !$this->languageNameUtils->isValidCode( $languageCode ) ) {
 			return;
 		}
 
@@ -98,21 +100,27 @@ class Main {
 		}
 
 		// Accept language?
-		if ( !$this->machineTranslationLanguages->isLanguageSupported( strtolower( $subpage ) ) ) {
+		if ( !$this->machineTranslationLanguages->isLanguageSupported( $languageCode ) ) {
 			return;
 		}
 
-		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . strtolower( $subpage );
+		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . $languageCode;
 
 		// Get title text for replace (the base page title + language caption)
 		$languageCaption = ucfirst(
-			$this->languageNameUtils->getLanguageName( $subpage ) ?:
-			$this->machineTranslationLanguages->getLanguageCaption( strtolower( $subpage ) )
+			$this->languageNameUtils->getLanguageName( $languageCode ) ?:
+			$this->machineTranslationLanguages->getLanguageCaption( $languageCode )
 		);
 
 		$baseCode = $baseTitle->getPageLanguage()->getCode();
-		$source = array_flip( $this->machineTranslationLanguages->getLanguageCodeMap() )[$baseCode] ?? $baseCode;
-		$target = array_flip( $this->machineTranslationLanguages->getLanguageCodeMap() )[$subpage] ?? $subpage;
+
+		$source = array_flip(
+			$this->machineTranslationLanguages->getLanguageCodeMap()
+		)[$baseCode] ?? $baseCode;
+
+		$target = array_flip(
+			$this->machineTranslationLanguages->getLanguageCodeMap()
+		)[$languageCode] ?? $languageCode;
 
 		$languageTitle = '';
 		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
