@@ -32,7 +32,7 @@ class LanguageUtils {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
 		$this->httpRequestFactory = $httpRequestFactory;
-		$this->machineTranslationUtils ÷ $machineTranslationUtils;
+		$this->machineTranslationUtils = $machineTranslationUtils;
 		$this->options = $options;
 	}
 
