@@ -154,18 +154,20 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
+		$apiKey = $this->options->get( ConfigNames::ServiceConfig )['apikey'] ?? null;
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/translate',
 			'method' => 'POST',
-			'body' => [
+			'body' => array_filter( [
+				'q' => $text,
+				'api_key' => $apiKey,
 				'source' => $sourceLanguage,
 				'target' => $targetLanguage,
 				'format' => 'html',
-				'q' => $text,
-			],
+			] ),
 			'headers' => [
 				'user-agent' => self::USER_AGENT,
 			]
