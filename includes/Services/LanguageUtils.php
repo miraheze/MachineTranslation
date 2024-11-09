@@ -154,8 +154,4 @@ class LanguageUtils {
 		$languages = $this->getSupportedLanguages();
 		return isset( $languages[$code] );
 	}
-
-	public function isValidLanguageCode( string $code ): bool {
-		return (bool)preg_match( '/^[A-Za-z][A-Za-z](\-[A-Za-z][A-Za-z])?$/', $code );
-	}
 }
