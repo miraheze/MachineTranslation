@@ -21,15 +21,18 @@ class LanguageUtils {
 		'(https://github.com/miraheze/MachineTranslation)';
 
 	private HttpRequestFactory $httpRequestFactory;
+	private MachineTranslationUtils $machineTranslationUtils;
 	private ServiceOptions $options;
 
 	public function __construct(
 		HttpRequestFactory $httpRequestFactory,
+		MachineTranslationUtils $machineTranslationUtils,
 		ServiceOptions $options
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
 		$this->httpRequestFactory = $httpRequestFactory;
+		$this->machineTranslationUtils ÷ $machineTranslationUtils;
 		$this->options = $options;
 	}
 
@@ -72,10 +75,16 @@ class LanguageUtils {
 	}
 
 	private function makeRequest( string $url, array $query, array $headers ): array {
+		if ( $this->machineTranslationUtils->getCache( $url ) ) {
+			$cachedResponse = $this->machineTranslationUtils->getCache( $url );
+			return json_decode( $cachedResponse, true );
+		}
+
 		$response = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
 			'url' => $url,
+			'query' => $query,
 			'method' => 'GET',
 			'headers' => [
 				'user-agent' => self::USER_AGENT,
@@ -93,6 +102,7 @@ class LanguageUtils {
 			return [];
 		}
 
+		$this->machineTranslationUtils->storeCache( $url, $response['body'] );
 		return json_decode( $response['body'], true );
 	}
 
