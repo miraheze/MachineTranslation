@@ -161,13 +161,13 @@ class MachineTranslationUtils {
 		)->run( [
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/translate',
 			'method' => 'POST',
-			'body' => [
+			'body' => array_filter( [
 				'q' => $text,
 				'api_key' => $apiKey,
 				'source' => $sourceLanguage,
 				'target' => $targetLanguage,
 				'format' => 'html',
-			],
+			] ),
 			'headers' => [
 				'user-agent' => self::USER_AGENT,
 			]
