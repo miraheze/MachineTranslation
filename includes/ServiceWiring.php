@@ -2,18 +2,18 @@
 
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\MediaWikiServices;
-use Miraheze\MachineTranslation\Services\MachineTranslationLanguages;
+use Miraheze\MachineTranslation\Services\MachineTranslationLanguageFetcher;
 use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
 
 return [
-	'MachineTranslationLanguages' => static function (
+	'MachineTranslationLanguageFetcher' => static function (
 		MediaWikiServices $services
-	): MachineTranslationLanguages {
-		return new MachineTranslationLanguages(
+	): MachineTranslationLanguageFetcher {
+		return new MachineTranslationLanguageFetcher(
 			$services->getHttpRequestFactory(),
 			$services->get( 'MachineTranslationUtils' ),
 			new ServiceOptions(
-				MachineTranslationLanguages::CONSTRUCTOR_OPTIONS,
+				MachineTranslationLanguageFetcher::CONSTRUCTOR_OPTIONS,
 				$services->getConfigFactory()->makeConfig( 'MachineTranslation' )
 			)
 		);

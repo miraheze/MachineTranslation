@@ -16,7 +16,7 @@ use MediaWiki\Title\TitleFactory;
 use MessageLocalizer;
 use Miraheze\MachineTranslation\ConfigNames;
 use Miraheze\MachineTranslation\Jobs\MachineTranslationJob;
-use Miraheze\MachineTranslation\Services\MachineTranslationLanguages;
+use Miraheze\MachineTranslation\Services\MachineTranslationLanguageFetcher;
 use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
 use TextContent;
 
@@ -25,7 +25,7 @@ class Main {
 	private Config $config;
 	private JobQueueGroupFactory $jobQueueGroupFactory;
 	private LanguageNameUtils $languageNameUtils;
-	private MachineTranslationLanguages $machineTranslationLanguages;
+	private MachineTranslationLanguageFetcher $machineTranslationLanguageFetcher;
 	private MachineTranslationUtils $machineTranslationUtils;
 	private MessageLocalizer $messageLocalizer;
 	private TitleFactory $titleFactory;
@@ -35,14 +35,14 @@ class Main {
 		ConfigFactory $configFactory,
 		JobQueueGroupFactory $jobQueueGroupFactory,
 		LanguageNameUtils $languageNameUtils,
-		MachineTranslationLanguages $machineTranslationLanguages,
+		MachineTranslationLanguageFetcher $machineTranslationLanguageFetcher,
 		MachineTranslationUtils $machineTranslationUtils,
 		TitleFactory $titleFactory,
 		WikiPageFactory $wikiPageFactory
 	) {
 		$this->jobQueueGroupFactory = $jobQueueGroupFactory;
 		$this->languageNameUtils = $languageNameUtils;
-		$this->machineTranslationLanguages = $machineTranslationLanguages;
+		$this->machineTranslationLanguageFetcher = $machineTranslationLanguageFetcher;
 		$this->machineTranslationUtils = $machineTranslationUtils;
 		$this->titleFactory = $titleFactory;
 		$this->wikiPageFactory = $wikiPageFactory;
@@ -100,7 +100,7 @@ class Main {
 		}
 
 		// Accept language?
-		if ( !$this->machineTranslationLanguages->isLanguageSupported( $languageCode ) ) {
+		if ( !$this->machineTranslationLanguageFetcher->isLanguageSupported( $languageCode ) ) {
 			return;
 		}
 
@@ -109,11 +109,11 @@ class Main {
 		$baseCode = $baseTitle->getPageLanguage()->getCode();
 
 		$source = array_flip(
-			$this->machineTranslationLanguages->getLanguageCodeMap()
+			$this->machineTranslationLanguageFetcher->getLanguageCodeMap()
 		)[$baseCode] ?? $baseCode;
 
 		$target = array_flip(
-			$this->machineTranslationLanguages->getLanguageCodeMap()
+			$this->machineTranslationLanguageFetcher->getLanguageCodeMap()
 		)[$languageCode] ?? $languageCode;
 
 		$titleText = $baseTitle->getTitleValue()->getText();
@@ -131,18 +131,18 @@ class Main {
 		}
 
 		$languageTitle = $titleText ?: $baseTitle->getTitleValue()->getText();
-		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
-			// Get title text for replace (the base page title + language caption)
-			$languageCaption = $this->messageLocalizer->msg( 'parentheses', ucfirst(
+		if ( $this->config->get( ConfigNames::DisplayLanguageName ) ) {
+			// Get title text for replace (the base page title + language name)
+			$languageName = $this->messageLocalizer->msg( 'parentheses', ucfirst(
 				$this->languageNameUtils->getLanguageName( $languageCode ) ?:
-				$this->machineTranslationLanguages->getLanguageCaption( $languageCode )
+				$this->machineTranslationLanguageFetcher->getLanguageName( $languageCode )
 			) )->text();
 
 			$languageTitle .= Html::element( 'span',
 				[
 					'class' => 'target-language',
 				],
-				' ' . $languageCaption
+				' ' . $languageName
 			);
 		}
 
@@ -216,7 +216,7 @@ class Main {
 		$out->clearHTML();
 		$out->addHTML( $text );
 
-		// Page title (from base page) and language caption (if not suppressed)
+		// Page title (from base page) and language name (if enabled)
 		$out->setPageTitle( $languageTitle );
 
 		// Set robot policy

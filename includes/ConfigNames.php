@@ -13,11 +13,11 @@ class ConfigNames {
 
 	public const CachingTime = 'MachineTranslationCachingTime';
 
+	public const DisplayLanguageName = 'MachineTranslationDisplayLanguageName';
+
 	public const RobotPolicy = 'MachineTranslationRobotPolicy';
 
 	public const ServiceConfig = 'MachineTranslationServiceConfig';
-
-	public const SuppressLanguageCaption = 'MachineTranslationSuppressLanguageCaption';
 
 	public const Timeout = 'MachineTranslationTimeout';
 

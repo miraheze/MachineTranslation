@@ -9,7 +9,7 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use Miraheze\MachineTranslation\ConfigNames;
 
-class MachineTranslationLanguages {
+class MachineTranslationLanguageFetcher {
 
 	public const CONSTRUCTOR_OPTIONS = [
 		ConfigNames::ServiceConfig,
@@ -147,7 +147,7 @@ class MachineTranslationLanguages {
 		return $supportedLanguages;
 	}
 
-	public function getLanguageCaption( string $code ): ?string {
+	public function getLanguageName( string $code ): ?string {
 		$languages = $this->getSupportedLanguages();
 		return $languages[$code] ?? null;
 	}
