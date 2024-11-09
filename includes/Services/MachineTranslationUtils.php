@@ -64,14 +64,14 @@ class MachineTranslationUtils {
 		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 
 		return match ( $serviceType ) {
-			'deepl' => $this->doDeepL( $text, $sourceLanguage, $targetLanguage ),
+			'deepl' => $this->doDeepLTranslate( $text, $sourceLanguage, $targetLanguage ),
 			'google' => $this->doGoogleTranslate( $text, $sourceLanguage, $targetLanguage ),
 			'libretranslate' => $this->doLibreTranslate( $text, $sourceLanguage, $targetLanguage ),
 			default => throw new ConfigException( 'Unsupported machine translation service configured.' ),
 		};
 	}
 
-	private function doDeepL(
+	private function doDeepLTranslate(
 		string $text,
 		string $sourceLanguage,
 		string $targetLanguage
