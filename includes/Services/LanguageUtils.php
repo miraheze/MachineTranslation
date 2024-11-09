@@ -58,7 +58,7 @@ class LanguageUtils {
 				'zh' => 'zh-hans',
 			],
 			default => [],
-		}
+		};
 	}
 
 	private function fetchDeepLSupportedLanguages(): array {
