@@ -47,16 +47,6 @@ class MachineTranslationLanguageFetcher {
 		return $supportedLanguages;
 	}
 
-	public function getLanguageCodeMap(): array {
-		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
-		return match ( $serviceType ) {
-			'libretranslate' => [
-				'zt' => 'zh-hant',
-			],
-			default => [],
-		};
-	}
-
 	private function fetchDeepLSupportedLanguages(): array {
 		$url = $this->options->get( ConfigNames::ServiceConfig )['url'] . '/v2/languages';
 		$apiKey = $this->options->get( ConfigNames::ServiceConfig )['apikey'];
@@ -145,6 +135,16 @@ class MachineTranslationLanguageFetcher {
 		}
 
 		return $supportedLanguages;
+	}
+
+	public function getLanguageCodeMap(): array {
+		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
+		return match ( $serviceType ) {
+			'libretranslate' => [
+				'zt' => 'zh-hant',
+			],
+			default => [],
+		};
 	}
 
 	public function getLanguageName( string $code ): ?string {
