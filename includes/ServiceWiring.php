@@ -11,6 +11,7 @@ return [
 	): LanguageUtils {
 		return new LanguageUtils(
 			$services->getHttpRequestFactory(),
+			$services->get( 'MachineTranslationUtils' ),
 			new ServiceOptions(
 				LanguageUtils::CONSTRUCTOR_OPTIONS,
 				$services->getConfigFactory()->makeConfig( 'MachineTranslation' )
