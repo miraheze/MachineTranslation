@@ -20,7 +20,7 @@ class MachineTranslationUtils {
 		MainConfigNames::HTTPProxy,
 	];
 
-	private const USER_AGENT = 'MachineTranslation, MediaWiki extension ' .
+	public const USER_AGENT = 'MachineTranslation, MediaWiki extension ' .
 		'(https://github.com/miraheze/MachineTranslation)';
 
 	private HttpRequestFactory $httpRequestFactory;

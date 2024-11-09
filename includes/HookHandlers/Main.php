@@ -98,16 +98,16 @@ class Main {
 		}
 
 		// Accept language?
-		if ( !$this->machineTranslationLanguages->isLanguageSupported( strtoupper( $subpage ) ) ) {
+		if ( !$this->machineTranslationLanguages->isLanguageSupported( strtolower( $subpage ) ) ) {
 			return;
 		}
 
-		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . strtoupper( $subpage );
+		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . strtolower( $subpage );
 
 		// Get title text for replace (the base page title + language caption)
 		$languageCaption = ucfirst(
 			$this->languageNameUtils->getLanguageName( $subpage ) ?:
-			$this->machineTranslationLanguages->getLanguageCaption( strtoupper( $subpage ) )
+			$this->machineTranslationLanguages->getLanguageCaption( strtolower( $subpage ) )
 		);
 
 		$baseCode = $baseTitle->getPageLanguage()->getCode();

@@ -17,9 +17,6 @@ class MachineTranslationLanguages {
 		MainConfigNames::HTTPProxy,
 	];
 
-	private const USER_AGENT = 'MachineTranslation, MediaWiki extension ' .
-		'(https://github.com/miraheze/MachineTranslation)';
-
 	private HttpRequestFactory $httpRequestFactory;
 	private MachineTranslationUtils $machineTranslationUtils;
 	private ServiceOptions $options;
@@ -97,7 +94,7 @@ class MachineTranslationLanguages {
 			'query' => $query,
 			'method' => 'GET',
 			'headers' => [
-				'user-agent' => self::USER_AGENT,
+				'user-agent' => MachineTranslationUtils::USER_AGENT,
 			] + $headers
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
 
@@ -123,7 +120,7 @@ class MachineTranslationLanguages {
 
 		foreach ( $response as $lang ) {
 			$code = $languageMap[$lang['code']] ?? $lang['code'];
-			$supportedLanguages[strtoupper( $code )] = $lang['name'];
+			$supportedLanguages[strtolower( $code )] = $lang['name'];
 		}
 
 		return $supportedLanguages;
@@ -133,7 +130,7 @@ class MachineTranslationLanguages {
 		$supportedLanguages = [];
 
 		foreach ( $response as $lang ) {
-			$supportedLanguages[strtoupper( $lang['language'] )] = $lang['name'];
+			$supportedLanguages[strtolower( $lang['language'] )] = $lang['name'];
 		}
 
 		return $supportedLanguages;
@@ -144,7 +141,7 @@ class MachineTranslationLanguages {
 		$supportedLanguages = [];
 
 		foreach ( $languages as $lang ) {
-			$supportedLanguages[strtoupper( $lang['language'] )] = $lang['name'] ?? strtoupper( $lang['language'] );
+			$supportedLanguages[strtolower( $lang['language'] )] = $lang['name'] ?? strtolower( $lang['language'] );
 		}
 
 		return $supportedLanguages;
