@@ -87,13 +87,18 @@ class Main {
 			return;
 		}
 
-		// Accept language?
-		if ( !$this->languageUtils->isLanguageSupported( strtoupper( $subpage ) ) ) {
+		$baseTitle = $this->titleFactory->newFromText( $basepage, $title->getNamespace() );
+		if ( $baseTitle === null || !$baseTitle->exists() ) {
 			return;
 		}
 
-		$baseTitle = $this->titleFactory->newFromText( $basepage, $title->getNamespace() );
-		if ( $baseTitle === null || !$baseTitle->exists() ) {
+		$page = $this->wikiPageFactory->newFromTitle( $baseTitle );
+		if ( !$page->exists() ) {
+			return;
+		}
+
+		// Accept language?
+		if ( !$this->languageUtils->isLanguageSupported( strtoupper( $subpage ) ) ) {
 			return;
 		}
 
@@ -132,11 +137,6 @@ class Main {
 					],
 					' (' . $languageCaption . ')'
 				);
-		}
-
-		$page = $this->wikiPageFactory->newFromTitle( $baseTitle );
-		if ( !$page->exists() ) {
-			return;
 		}
 
 		$out = $article->getContext()->getOutput();
