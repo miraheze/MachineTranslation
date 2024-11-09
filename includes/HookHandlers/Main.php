@@ -133,7 +133,7 @@ class Main {
 		$languageTitle = $titleText ?: $baseTitle->getTitleValue()->getText();
 		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
 			// Get title text for replace (the base page title + language caption)
-			$languageCaption = $this->messageLocalizer( 'parentheses', ucfirst(
+			$languageCaption = $this->messageLocalizer->msg( 'parentheses', ucfirst(
 				$this->languageNameUtils->getLanguageName( $languageCode ) ?:
 				$this->machineTranslationLanguages->getLanguageCaption( $languageCode )
 			) )->text();
