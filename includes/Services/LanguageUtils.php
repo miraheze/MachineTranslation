@@ -108,17 +108,14 @@ class LanguageUtils {
 
 	private function parseLibreTranslateLanguages( array $response ): array {
 		$supportedLanguages = [];
+		$languageMap = [
+			'zt' => 'zh-hant',
+			'zh' => 'zh-hans',
+		];
 
 		foreach ( $response as $lang ) {
-			if ( $lang['code'] === 'zh' ) {
-				$lang['code'] = 'zh-hans';
-			}
-
-			if ( $lang['code'] === 'zt' ) {
-				$lang['code'] = 'zh-hant';
-			}
-
-			$supportedLanguages[strtoupper( $lang['code'] )] = $lang['name'];
+			$code = $languageMap[$lang['code']] ?? $lang['code'];
+			$supportedLanguages[strtoupper( $code )] = $lang['name'];
 		}
 
 		return $supportedLanguages;
