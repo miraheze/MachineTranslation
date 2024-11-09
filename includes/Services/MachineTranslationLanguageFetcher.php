@@ -147,9 +147,9 @@ class MachineTranslationLanguageFetcher {
 		};
 	}
 
-	public function getLanguageName( string $code ): ?string {
+	public function getLanguageName( string $code ): string {
 		$languages = $this->getSupportedLanguages();
-		return $languages[$code] ?? null;
+		return $languages[$code] ?? '';
 	}
 
 	public function isLanguageSupported( string $code ): bool {
