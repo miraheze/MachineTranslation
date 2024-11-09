@@ -16,7 +16,7 @@ use MediaWiki\Title\TitleFactory;
 use MessageLocalizer;
 use Miraheze\MachineTranslation\ConfigNames;
 use Miraheze\MachineTranslation\Jobs\MachineTranslationJob;
-use Miraheze\MachineTranslation\Services\LanguageUtils;
+use Miraheze\MachineTranslation\Services\MachineTranslationLanguages;
 use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
 use TextContent;
 
@@ -25,7 +25,7 @@ class Main {
 	private Config $config;
 	private JobQueueGroupFactory $jobQueueGroupFactory;
 	private LanguageNameUtils $languageNameUtils;
-	private LanguageUtils $languageUtils;
+	private MachineTranslationLanguages $machineTranslationLanguages;
 	private MachineTranslationUtils $machineTranslationUtils;
 	private MessageLocalizer $messageLocalizer;
 	private TitleFactory $titleFactory;
@@ -35,14 +35,14 @@ class Main {
 		ConfigFactory $configFactory,
 		JobQueueGroupFactory $jobQueueGroupFactory,
 		LanguageNameUtils $languageNameUtils,
-		LanguageUtils $languageUtils,
+		MachineTranslationLanguages $machineTranslationLanguages,
 		MachineTranslationUtils $machineTranslationUtils,
 		TitleFactory $titleFactory,
 		WikiPageFactory $wikiPageFactory
 	) {
 		$this->jobQueueGroupFactory = $jobQueueGroupFactory;
 		$this->languageNameUtils = $languageNameUtils;
-		$this->languageUtils = $languageUtils;
+		$this->machineTranslationLanguages = $machineTranslationLanguages;
 		$this->machineTranslationUtils = $machineTranslationUtils;
 		$this->titleFactory = $titleFactory;
 		$this->wikiPageFactory = $wikiPageFactory;
@@ -98,7 +98,7 @@ class Main {
 		}
 
 		// Accept language?
-		if ( !$this->languageUtils->isLanguageSupported( strtoupper( $subpage ) ) ) {
+		if ( !$this->machineTranslationLanguages->isLanguageSupported( strtoupper( $subpage ) ) ) {
 			return;
 		}
 
@@ -107,12 +107,12 @@ class Main {
 		// Get title text for replace (the base page title + language caption)
 		$languageCaption = ucfirst(
 			$this->languageNameUtils->getLanguageName( $subpage ) ?:
-			$this->languageUtils->getLanguageCaption( strtoupper( $subpage ) )
+			$this->machineTranslationLanguages->getLanguageCaption( strtoupper( $subpage ) )
 		);
 
 		$baseCode = $baseTitle->getPageLanguage()->getCode();
-		$source = array_flip( $this->languageUtils->getLanguageCodeMap() )[$baseCode] ?? $baseCode;
-		$target = array_flip( $this->languageUtils->getLanguageCodeMap() )[$subpage] ?? $subpage;
+		$source = array_flip( $this->machineTranslationLanguages->getLanguageCodeMap() )[$baseCode] ?? $baseCode;
+		$target = array_flip( $this->machineTranslationLanguages->getLanguageCodeMap() )[$subpage] ?? $subpage;
 
 		$languageTitle = '';
 		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {

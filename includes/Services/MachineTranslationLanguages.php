@@ -9,7 +9,7 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use Miraheze\MachineTranslation\ConfigNames;
 
-class LanguageUtils {
+class MachineTranslationLanguages {
 
 	public const CONSTRUCTOR_OPTIONS = [
 		ConfigNames::ServiceConfig,
