@@ -103,10 +103,11 @@ class LanguageUtils {
 
 		if ( $response['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to {url} for languages returned {code}: {reason}', [
+				'Request to {url} for languages returned {code}: {reason}',
+				[
 					'url' => $url,
 					'code' => $response['code'],
-					'reason' => $response['reason']
+					'reason' => $response['reason'],
 				]
 			);
 			return [];
