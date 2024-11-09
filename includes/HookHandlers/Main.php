@@ -105,7 +105,9 @@ class Main {
 			$this->languageUtils->getLanguageCaption( strtoupper( $subpage ) )
 		);
 
-		$subpage = array_flip( $this->languageUtils->getLanguageCodeMap() )[$subpage] ?? $subpage;
+		$baseCode = $baseTitle->getPageLanguage()->getCode();
+		$source = array_flip( $this->languageUtils->getLanguageCodeMap() )[$baseCode] ?? $baseCode;
+		$target = array_flip( $this->languageUtils->getLanguageCodeMap() )[$subpage] ?? $subpage;
 
 		$languageTitle = '';
 		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
@@ -116,7 +118,7 @@ class Main {
 				if ( !$titleText && !$this->config->get( ConfigNames::UseJobQueue ) ) {
 					$titleText = $this->machineTranslationUtils->callTranslation(
 						$baseTitle->getTitleValue()->getText(),
-						$subpage
+						$source, $target
 					);
 
 					$this->machineTranslationUtils->storeCache( $titleCacheKey, $titleText );
@@ -171,7 +173,8 @@ class Main {
 							[
 								'cachekey' => $cacheKey,
 								'content' => $out->parseAsContent( $text ),
-								'subpage' => $subpage,
+								'source' => $source,
+								'target' => $target,
 								'titletext' => $baseTitle->getTitleValue()->getText(),
 							]
 						)
@@ -190,7 +193,7 @@ class Main {
 			} else {
 				$text = $this->machineTranslationUtils->callTranslation(
 					$out->parseAsContent( $text ),
-					$subpage
+					$source, $target
 				);
 
 				if ( !$text ) {
