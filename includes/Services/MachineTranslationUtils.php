@@ -163,7 +163,7 @@ class MachineTranslationUtils {
 			'method' => 'POST',
 			'body' => array_filter( [
 				'q' => $text,
-		       		'api_key' => $apiKey,
+					'api_key' => $apiKey,
 				'source' => $sourceLanguage,
 				'target' => $targetLanguage,
 				'format' => 'html',
