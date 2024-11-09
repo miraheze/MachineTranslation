@@ -105,6 +105,8 @@ class Main {
 			$this->languageUtils->getLanguageCaption( strtoupper( $subpage ) )
 		);
 
+		$subpage = array_flip( $this->languageUtils->getLanguageCodeMap() )[$subpage] ?? $subpage;
+
 		$languageTitle = '';
 		if ( !$this->config->get( ConfigNames::SuppressLanguageCaption ) ) {
 			$titleText = $baseTitle->getTitleValue()->getText();
