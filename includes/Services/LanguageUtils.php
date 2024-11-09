@@ -36,12 +36,15 @@ class LanguageUtils {
 	public function getSupportedLanguages(): array {
 		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 
-		return match ( $serviceType ) {
+		static $supportedLanguages = null;
+		$supportedLanguages ??= match ( $serviceType ) {
 			'deepl' => $this->fetchDeepLSupportedLanguages(),
 			'google' => $this->fetchGoogleSupportedLanguages(),
 			'libretranslate' => $this->fetchLibreTranslateSupportedLanguages(),
 			default => throw new ConfigException( 'Unsupported translation service configured.' ),
 		};
+
+		return $supportedLanguages;
 	}
 
 	private function fetchDeepLSupportedLanguages(): array {
@@ -97,6 +100,14 @@ class LanguageUtils {
 		$supportedLanguages = [];
 
 		foreach ( $response as $lang ) {
+			/* if ( $lang['code'] === 'zh' ) {
+				$lang['code'] = 'zh-hans';
+			}
+
+			if ( $lang['code'] === 'zt' ) {
+				$lang['code'] = 'zh-hant';
+			} */
+
 			$supportedLanguages[strtoupper( $lang['code'] )] = $lang['name'];
 		}
 
