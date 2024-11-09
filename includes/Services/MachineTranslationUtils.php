@@ -39,7 +39,11 @@ class MachineTranslationUtils {
 		$this->options = $options;
 	}
 
-	public function callTranslation( string $text, string $targetLanguage ): string {
+	public function callTranslation(
+		string $text,
+		string $sourceLanguage,
+		string $targetLanguage
+	): string {
 		// Check parameters
 		if ( !$text || !$targetLanguage ) {
 			return '';
@@ -60,14 +64,18 @@ class MachineTranslationUtils {
 		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 
 		return match ( $serviceType ) {
-			'deepl' => $this->doDeepL( $text, $targetLanguage ),
-			'google' => $this->doGoogleTranslate( $text, $targetLanguage ),
-			'libretranslate' => $this->doLibreTranslate( $text, $targetLanguage ),
+			'deepl' => $this->doDeepL( $text, $sourceLanguage, $targetLanguage ),
+			'google' => $this->doGoogleTranslate( $text, $sourceLanguage, $targetLanguage ),
+			'libretranslate' => $this->doLibreTranslate( $text, $sourceLanguage, $targetLanguage ),
 			default => throw new ConfigException( 'Unsupported machine translation service configured.' ),
 		};
 	}
 
-	private function doDeepL( string $text, string $targetLanguage ): string {
+	private function doDeepL(
+		string $text,
+		string $sourceLanguage,
+		string $targetLanguage
+	): string {
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
@@ -75,6 +83,7 @@ class MachineTranslationUtils {
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/v2/translate',
 			'method' => 'POST',
 			'body' => [
+				'source_lang' => $sourceLanguage,
 				'target_lang' => $targetLanguage,
 				'tag_handling' => 'html',
 				'text' => $text,
@@ -101,7 +110,11 @@ class MachineTranslationUtils {
 		return $json['translations'][0]['text'] ?? '';
 	}
 
-	private function doGoogleTranslate( string $text, string $targetLanguage ): string {
+	private function doGoogleTranslate(
+		string $text,
+		string $sourceLanguage,
+		string $targetLanguage
+	): string {
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
@@ -110,6 +123,7 @@ class MachineTranslationUtils {
 			'method' => 'POST',
 			'body' => [
 				'q' => $text,
+				'source' => $sourceLanguage,
 				'target' => $targetLanguage,
 				'format' => 'html',
 				'key' => $this->options->get( ConfigNames::ServiceConfig )['apikey'],
@@ -135,7 +149,11 @@ class MachineTranslationUtils {
 		return $json['data']['translations'][0]['translatedText'] ?? '';
 	}
 
-	private function doLibreTranslate( string $text, string $targetLanguage ): string {
+	private function doLibreTranslate(
+		string $text,
+		string $sourceLanguage,
+		string $targetLanguage
+	): string {
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
@@ -143,7 +161,7 @@ class MachineTranslationUtils {
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/translate',
 			'method' => 'POST',
 			'body' => [
-				'source' => 'auto',
+				'source' => $sourceLanguage,
 				'target' => $targetLanguage,
 				'format' => 'html',
 				'q' => $text,
