@@ -110,13 +110,13 @@ class LanguageUtils {
 		$supportedLanguages = [];
 
 		foreach ( $response as $lang ) {
-			/* if ( $lang['code'] === 'zh' ) {
+			if ( $lang['code'] === 'zh' ) {
 				$lang['code'] = 'zh-hans';
 			}
 
 			if ( $lang['code'] === 'zt' ) {
 				$lang['code'] = 'zh-hant';
-			} */
+			}
 
 			$supportedLanguages[strtoupper( $lang['code'] )] = $lang['name'];
 		}
