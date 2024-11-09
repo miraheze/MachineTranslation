@@ -83,7 +83,7 @@ class Main {
 		}
 
 		// Language code check
-		if ( !$this->languageUtils->isValidLanguageCode( $subpage ) ) {
+		if ( !$this->languageNameUtils->isValidCode( $subpage ) ) {
 			return;
 		}
 
