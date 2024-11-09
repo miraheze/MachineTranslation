@@ -50,6 +50,17 @@ class LanguageUtils {
 		return $supportedLanguages;
 	}
 
+	public function getLanguageCodeMap(): array {
+		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
+		return match ( $serviceType ) {
+			'libretranslate' => [
+				'zt' => 'zh-hant',
+				'zh' => 'zh-hans',
+			],
+			default => [],
+		}
+	}
+
 	private function fetchDeepLSupportedLanguages(): array {
 		$url = $this->options->get( ConfigNames::ServiceConfig )['url'] . '/v2/languages';
 		$apiKey = $this->options->get( ConfigNames::ServiceConfig )['apikey'];
@@ -108,10 +119,7 @@ class LanguageUtils {
 
 	private function parseLibreTranslateLanguages( array $response ): array {
 		$supportedLanguages = [];
-		$languageMap = [
-			'zt' => 'zh-hant',
-			'zh' => 'zh-hans',
-		];
+		$languageMap = $this->getLanguageCodeMap();
 
 		foreach ( $response as $lang ) {
 			$code = $languageMap[$lang['code']] ?? $lang['code'];
