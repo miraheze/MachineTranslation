@@ -202,7 +202,7 @@ class MachineTranslationUtils {
 		// Build GraphQL query
 		$query = <<<GQL
 			{
-				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
+				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: """{$text}""") {
 					target {
 						text
 					}
@@ -210,17 +210,15 @@ class MachineTranslationUtils {
 			}
 		GQL;
 
-		// The GraphQL query breaks if we use json_encode,
-		// so we build the JSON manually
-		$json = json_encode( [ 'query' => $query ] );
-
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
 			'method' => 'POST',
-			'body' => $json,
+			'body' => json_encode( [
+				'query' => $query,
+			] ),
 			'headers' => [
 				// 'content-type' => 'application/json',
 				'user-agent' => self::USER_AGENT,
@@ -230,12 +228,10 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'{request}: {query}',
+				'Request to Lingva returned {code}: {reason}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
-					'request' => json_encode( $request ),
-					'query' => $json,
 				]
 			);
 			return '';
