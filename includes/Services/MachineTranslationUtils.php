@@ -195,21 +195,22 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
+		$query = <<<GQL
+			{
+				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
+					target {
+						text
+					}
+				}
+			}
+		GQL;
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
 			'method' => 'POST',
-			'body' => json_encode( [
-				// Build GraphQL query
-				'query' => sprintf(
-					'{ translation(source: "%s", target: "%s", query: "%s") { target { text } } }',
-					addslashes( $sourceLanguage ),
-					addslashes( $targetLanguage ),
-					addslashes( $text )
-				)
-			], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ),
+			'json' => $query,
 			'headers' => [
 				'content-type' => 'application/json',
 				'user-agent' => self::USER_AGENT,
@@ -219,20 +220,12 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'{query}',
+				'{request}: {query}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
 					'request' => json_encode( $request ),
-					'query' => 'curl -X POST "https://lingva-translate-eta.vercel.app/api/graphql" -H "Content-Type: application/json" -d \'' . json_encode( [
-						// Build GraphQL query
-						'query' => sprintf(
-							'{ translation(source: "%s", target: "%s", query: "%s") { target { text } } }',
-							addslashes( $sourceLanguage ),
-							addslashes( $targetLanguage ),
-							addslashes( $text )
-						)
-					] ) . '\'',
+					'query' => $query,
 				]
 			);
 			return '';
