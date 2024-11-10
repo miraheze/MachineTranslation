@@ -196,9 +196,9 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
-		// Split text into chunks of max 6,000 characters each
+		// Split text into chunks of max 2,000 characters each
 		// Otherwise Lingva will not work for more than that.
-		$chunks = $this->splitTextIntoChunks( $text, 6000 );
+		$chunks = $this->splitTextIntoChunks( $text, 2000 );
 		$translatedText = '';
 
 		foreach ( $chunks as $chunk ) {
