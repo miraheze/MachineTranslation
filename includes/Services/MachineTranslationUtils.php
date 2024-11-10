@@ -195,7 +195,11 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
-		$text = str_replace( [ '(', ')' ], [ '\(', '\)' ], $text );
+		// We need to make sure we escape parentheses
+		// or the GraphQL query breaks
+		$text = str_replace( [ '(', ')' ], [ '', '' ], $text );
+
+		// Build GraphQL query
 		$query = <<<GQL
 			{
 				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
@@ -205,11 +209,15 @@ class MachineTranslationUtils {
 				}
 			}
 		GQL;
+
+		// The GraphQL query breaks if we use json_encode,
+		// so we build the JSON manually
 		$json = <<<JSON
 			{
 				"query": {$query}
 			}
 		JSON;
+
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
