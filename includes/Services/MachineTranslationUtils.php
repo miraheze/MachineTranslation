@@ -219,12 +219,12 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Lingva returned {code}: {reason} — {request} — query: {query}',
+				'{query}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
 					'request' => json_encode( $request ),
-					'query' => json_encode( [
+					'query' => 'curl -X POST "https://lingva-translate-eta.vercel.app/api/graphql" -H "Content-Type: application/json" -d ' . json_encode( [
 						// Build GraphQL query
 						'query' => sprintf(
 							'{ translation(source: "%s", target: "%s", query: "%s") { target { text } } }',
@@ -232,7 +232,7 @@ class MachineTranslationUtils {
 							addslashes( $targetLanguage ),
 							addslashes( $text )
 						)
-					], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ),
+					] ),
 				]
 			);
 			return '';
