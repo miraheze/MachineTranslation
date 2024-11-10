@@ -219,10 +219,11 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Lingva returned {code}: {reason}',
+				'Request to Lingva returned {code}: {reason} — {request}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
+					'request' => json_encode( $request ),
 				]
 			);
 			return '';
