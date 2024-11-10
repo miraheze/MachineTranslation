@@ -269,17 +269,17 @@ class MachineTranslationUtils {
 
 		foreach ( $sentences as $sentence ) {
 			// If adding the next sentence exceeds the limit, start a new chunk
-			if ( mb_strlen( $currentChunk . ' ' . $sentence ) > $maxChunkSize ) {
-				$chunks[] = trim( $currentChunk );
+			if ( mb_strlen( $currentChunk . $sentence ) > $maxChunkSize ) {
+				$chunks[] = $currentChunk;
 				$currentChunk = '';
 			}
 
-			$currentChunk .= ( $currentChunk ? ' ' : '' ) . $sentence;
+			$currentChunk .= $sentence;
 		}
 
 		// Add the last chunk if there is remaining text
 		if ( $currentChunk ) {
-			$chunks[] = trim( $currentChunk );
+			$chunks[] = $currentChunk;
 		}
 
 		return $chunks;
@@ -304,7 +304,7 @@ class MachineTranslationUtils {
 				$end !== IntlBreakIterator::DONE;
 				$start = $end, $end = $iterator->next()
 			) {
-				$sentence = trim( mb_substr( $part, $start, $end - $start ) );
+				$sentence = mb_substr( $part, $start, $end - $start );
 				$currentSentence .= $sentence;
 
 				if ( $currentSentence ) {
@@ -314,7 +314,7 @@ class MachineTranslationUtils {
 			}
 
 			if ( $start < mb_strlen( $part ) ) {
-				$currentSentence .= trim( mb_substr( $part, $start ) );
+				$currentSentence .= mb_substr( $part, $start );
 			}
 		}
 
