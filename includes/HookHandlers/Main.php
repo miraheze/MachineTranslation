@@ -114,7 +114,7 @@ class Main {
 
 		$target = array_flip(
 			$this->machineTranslationLanguageFetcher->getLanguageCodeMap()
-		)[$languageCode] ?? $languageCode;
+		)[$languageCode] ?? strtolower( $languageCode );
 
 		$titleText = $baseTitle->getTitleValue()->getText();
 		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
