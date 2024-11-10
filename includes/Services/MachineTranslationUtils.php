@@ -203,13 +203,13 @@ class MachineTranslationUtils {
 			'method' => 'POST',
 			'body' => [
 				// Build GraphQL query
-				'query' => '{' .
-					'translation(' .
-						'source: "' . $sourceLanguage . '",' .
-							'target: "' . $targetLanguage . '",' .
-							'query: "' . addslashes( $text ) . '"' .
-					') { target { text } }' .
-				'}',
+				'query' => '{
+					translation(
+						source: "' . $sourceLanguage . '",
+      						target: "' . $targetLanguage . '",
+	    					query: "' . json_encode( $text ) . '"
+					) { target { text } }
+				}',
 			],
 			'headers' => [
 				'user-agent' => self::USER_AGENT,
@@ -219,24 +219,17 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Lingva returned {code}: {reason} — {query}',
+				'Request to Lingva returned {code}: {reason}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
-					'query' => '{' .
-						'translation(' .
-							'source: "' . $sourceLanguage . '",' .
-								'target: "' . $targetLanguage . '",' .
-								'query: "' . addslashes( $text ) . '"' .
-						') { target { text } }' .
-					'}',
 				]
 			);
 			return '';
 		}
 
 		$json = json_decode( $request['body'], true );
-		return stripcslashes( $json['data']['translation']['target']['text'] ?? '' );
+		return $json['data']['translation']['target']['text'] ?? '';
 	}
 
 	public function storeCache( string $key, string $value ): bool {
