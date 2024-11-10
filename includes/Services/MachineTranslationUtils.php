@@ -233,6 +233,15 @@ class MachineTranslationUtils {
 		}
 
 		$json = json_decode( $request['body'], true );
+		if ( $json['errors'] ?? [] ) {
+			LoggerFactory::getInstance( 'MachineTranslation' )->error(
+				'Request to Lingva had errors: {errors}',
+				[
+					'errors' => json_encode( $json['errors'] ),
+				]
+			);
+		}
+
 		return $json['data']['translation']['target']['text'] ?? '';
 	}
 
