@@ -195,7 +195,7 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
-		$text = json_encode( $text );
+		$text = preg_quote( $text );
 		$query = <<<GQL
 			{
 				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
@@ -205,15 +205,18 @@ class MachineTranslationUtils {
 				}
 			}
 		GQL;
+		$json = <<<JSON
+			{
+				"query": {$query}
+			}
+		JSON;
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
 			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
 		)->run( [
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
 			'method' => 'POST',
-			'body' => json_encode( [
-				'query' => $query,
-			] ),
+			'body' => $json,
 			'headers' => [
 				'content-type' => 'application/json',
 				'user-agent' => self::USER_AGENT,
@@ -228,7 +231,7 @@ class MachineTranslationUtils {
 					'code' => $request['code'],
 					'reason' => $request['reason'],
 					'request' => json_encode( $request ),
-					'query' => $query,
+					'query' => $json,
 				]
 			);
 			return '';
