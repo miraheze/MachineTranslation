@@ -207,7 +207,7 @@ class MachineTranslationUtils {
 					translation(
 						source: "' . $sourceLanguage . '",
       						target: "' . $targetLanguage . '",
-	    					query: "' . $text . '"
+	    					query: "' . json_encode( $text, JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ) . '"
 					) { target { text } }
 				}',
 			] ),
@@ -230,7 +230,7 @@ class MachineTranslationUtils {
 							translation(
 								source: "' . $sourceLanguage . '",
       								target: "' . $targetLanguage . '",
-	    							query: "' . $text . '"
+	    							query: "' . json_encode( $text, JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ) . '"
 							) { target { text } }
 						}',
 					] ),
