@@ -61,7 +61,6 @@ class MachineTranslationUtils {
 			return '';
 		}
 
-		$targetLanguage = strtolower( $targetLanguage );
 		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 
 		return match ( $serviceType ) {
