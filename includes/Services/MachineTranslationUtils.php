@@ -203,13 +203,12 @@ class MachineTranslationUtils {
 			'method' => 'POST',
 			'body' => json_encode( [
 				// Build GraphQL query
-				'query' => '{
-					translation(
-						source: "' . $sourceLanguage . '",
-      						target: "' . $targetLanguage . '",
-	    					query: "' . json_encode( $text, JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ) . '"
-					) { target { text } }
-				}',
+				'query' => sprintf(
+					'{ translation(source: "%s", target: "%s", query: "%s") { target { text } } }',
+					addslashes( $sourceLanguage ),
+					addslashes( $targetLanguage ),
+					addslashes( $text )
+				)
 			] ),
 			'headers' => [
 				'user-agent' => self::USER_AGENT,
@@ -226,13 +225,12 @@ class MachineTranslationUtils {
 					'request' => json_encode( $request ),
 					'query' => json_encode( [
 						// Build GraphQL query
-						'query' => '{
-							translation(
-								source: "' . $sourceLanguage . '",
-      								target: "' . $targetLanguage . '",
-	    							query: "' . json_encode( $text, JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ) . '"
-							) { target { text } }
-						}',
+						'query' => sprintf(
+							'{ translation(source: "%s", target: "%s", query: "%s") { target { text } } }',
+							addslashes( $sourceLanguage ),
+							addslashes( $targetLanguage ),
+							addslashes( $text )
+						)
 					] ),
 				]
 			);
