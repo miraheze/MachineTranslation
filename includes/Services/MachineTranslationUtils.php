@@ -206,8 +206,8 @@ class MachineTranslationUtils {
 				'query' => '{' .
 					'translation(' .
 						'source: "' . $sourceLanguage . '",' .
-							'target: "' . $targetLanguage . '",' .
-							'query: "' . addslashes( $text ) . '"' .
+      						'target: "' . $targetLanguage . '",' .
+	    					'query: "' . addslashes( $text ) . '"' .
 					') { target { text } }' .
 				'}',
 			],
@@ -219,11 +219,17 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Lingva returned {code}: {reason} — {request}',
+				'Request to Lingva returned {code}: {reason} — {query}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
-					'request' => json_encode( $request ),
+					'query' => '{' .
+						'translation(' .
+							'source: "' . $sourceLanguage . '",' .
+      							'target: "' . $targetLanguage . '",' .
+	    						'query: "' . addslashes( $text ) . '"' .
+						') { target { text } }' .
+					'}',
 				]
 			);
 			return '';
