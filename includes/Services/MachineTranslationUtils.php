@@ -209,7 +209,7 @@ class MachineTranslationUtils {
 					addslashes( $targetLanguage ),
 					addslashes( $text )
 				)
-			] ),
+			], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ),
 			'headers' => [
 				'user-agent' => self::USER_AGENT,
 			]
@@ -231,7 +231,7 @@ class MachineTranslationUtils {
 							addslashes( $targetLanguage ),
 							addslashes( $text )
 						)
-					] ),
+					], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ),
 				]
 			);
 			return '';
