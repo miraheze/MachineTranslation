@@ -195,6 +195,7 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
+		$text = addslashes( $text );
 		$query = <<<GQL
 			{
 				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
