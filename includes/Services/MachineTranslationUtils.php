@@ -220,7 +220,6 @@ class MachineTranslationUtils {
 				'query' => $query,
 			] ),
 			'headers' => [
-				// 'content-type' => 'application/json',
 				'user-agent' => self::USER_AGENT,
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
