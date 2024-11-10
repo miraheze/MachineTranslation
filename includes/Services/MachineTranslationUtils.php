@@ -196,11 +196,9 @@ class MachineTranslationUtils {
 		string $targetLanguage
 	): string {
 		$query = <<<GQL
-			{
-				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
-					target {
-						text
-					}
+			translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
+				target {
+					text
 				}
 			}
 		GQL;
@@ -210,7 +208,7 @@ class MachineTranslationUtils {
 		)->run( [
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
 			'method' => 'POST',
-			'json' => [
+			'body' => [
 				'query' => $query,
 			],
 			'headers' => [
