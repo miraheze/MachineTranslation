@@ -219,11 +219,21 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Lingva returned {code}: {reason} — {request}',
+				'Request to Lingva returned {code}: {reason} — {request} — query: {query}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
 					'request' => json_encode( $request ),
+					'query' => json_encode( [
+						// Build GraphQL query
+						'query' => '{
+							translation(
+								source: "' . $sourceLanguage . '",
+      								target: "' . $targetLanguage . '",
+	    							query: "' . $text . '"
+							) { target { text } }
+						}',
+					] ),
 				]
 			);
 			return '';
