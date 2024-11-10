@@ -206,8 +206,8 @@ class MachineTranslationUtils {
 				'query' => '{' .
 					'translation(' .
 						'source: "' . $sourceLanguage . '",' .
-      						'target: "' . $targetLanguage . '",' .
-	    					'query: "' . addslashes( $text ) . '"' .
+							'target: "' . $targetLanguage . '",' .
+							'query: "' . addslashes( $text ) . '"' .
 					') { target { text } }' .
 				'}',
 			],
