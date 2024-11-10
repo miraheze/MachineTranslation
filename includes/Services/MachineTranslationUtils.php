@@ -212,7 +212,7 @@ class MachineTranslationUtils {
 
 		// The GraphQL query breaks if we use json_encode,
 		// so we build the JSON manually
-		$json = '{"query": "' . addslashes( $query ) . '"}';
+		$json = json_encode( [ 'query' => $query ] );
 
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
