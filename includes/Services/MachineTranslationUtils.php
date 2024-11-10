@@ -203,13 +203,13 @@ class MachineTranslationUtils {
 			'method' => 'POST',
 			'body' => [
 				// Build GraphQL query
-				'query' => '{
-					translation(
-						source: "' . $sourceLanguage . '",
-      						target: "' . $targetLanguage . '",
-	    					query: "' . addslashes( $text ) . '"
-					) { target { text } }
-				}',
+				'query' => '{' .
+					'translation(' .
+						'source: "' . $sourceLanguage . '",' .
+      						'target: "' . $targetLanguage . '",' .
+	    					'query: "' . addslashes( $text ) . '"' .
+					') { target { text } }' .
+				'}',
 			],
 			'headers' => [
 				'user-agent' => self::USER_AGENT,
