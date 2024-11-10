@@ -201,16 +201,16 @@ class MachineTranslationUtils {
 		)->run( [
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
 			'method' => 'POST',
-			'body' => [
+			'body' => json_encode( [
 				// Build GraphQL query
 				'query' => '{
 					translation(
 						source: "' . $sourceLanguage . '",
       						target: "' . $targetLanguage . '",
-	    					query: "' . json_encode( $text ) . '"
+	    					query: "' . $text . '"
 					) { target { text } }
 				}',
-			],
+			] ),
 			'headers' => [
 				'user-agent' => self::USER_AGENT,
 			]
@@ -219,10 +219,11 @@ class MachineTranslationUtils {
 		// Check if the HTTP response code is returning 200
 		if ( $request['code'] !== 200 ) {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Lingva returned {code}: {reason}',
+				'Request to Lingva returned {code}: {reason} — {query}',
 				[
 					'code' => $request['code'],
 					'reason' => $request['reason'],
+					'request' => json_encode( $request ),
 				]
 			);
 			return '';
