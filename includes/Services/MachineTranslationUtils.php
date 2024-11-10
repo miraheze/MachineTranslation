@@ -3,6 +3,7 @@
 namespace Miraheze\MachineTranslation\Services;
 
 use ConfigException;
+use IntlBreakIterator;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Logger\LoggerFactory;
@@ -195,54 +196,134 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
-		// Build GraphQL query
-		$query = <<<GQL
-			{
-				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: """{$text}""") {
-					target {
-						text
+		// Split text into chunks of max 6,000 characters each
+		// Otherwise Lingva will not work for more than that.
+		$chunks = $this->splitTextIntoChunks( $text, 6000 );
+		$translatedText = '';
+
+		foreach ( $chunks as $chunk ) {
+			// Build GraphQL query for each chunk
+			$query = <<<GQL
+				{
+					translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: """{$chunk}""") {
+						target {
+							text
+						}
 					}
 				}
+			GQL;
+
+			// Call API
+			$request = $this->httpRequestFactory->createMultiClient(
+				[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
+			)->run( [
+				'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
+				'method' => 'POST',
+				'body' => json_encode( [
+					'query' => $query,
+				] ),
+				'headers' => [
+					'user-agent' => self::USER_AGENT,
+				]
+			], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
+
+			// Check if the HTTP response code is returning 200
+			if ( $request['code'] !== 200 ) {
+				LoggerFactory::getInstance( 'MachineTranslation' )->error(
+					'Request to Lingva returned {code}: {reason}',
+					[
+						'code' => $request['code'],
+						'reason' => $request['reason'],
+					]
+				);
+
+				// If we have any errors, return nothing,
+				// we don't want a half-translated page.
+				return '';
 			}
-		GQL;
 
-		// Call API
-		$request = $this->httpRequestFactory->createMultiClient(
-			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
-		)->run( [
-			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
-			'method' => 'POST',
-			'body' => json_encode( [
-				'query' => $query,
-			] ),
-			'headers' => [
-				'user-agent' => self::USER_AGENT,
-			]
-		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
+			$json = json_decode( $request['body'], true );
+			if ( $json['errors'] ?? [] ) {
+				LoggerFactory::getInstance( 'MachineTranslation' )->error(
+					'Request to Lingva had errors: {errors}',
+					[
+						'errors' => json_encode( $json['errors'] ?? [] ),
+					]
+				);
 
-		// Check if the HTTP response code is returning 200
-		if ( $request['code'] !== 200 ) {
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Lingva returned {code}: {reason}',
-				[
-					'code' => $request['code'],
-					'reason' => $request['reason'],
-				]
-			);
-			return '';
+				// If we have any errors, return nothing,
+				// we don't want a half-translated page.
+				return '';
+			}
+
+			// Append translated chunk text
+			$translatedText .= $json['data']['translation']['target']['text'] ?? '';
 		}
 
-		$json = json_decode( $request['body'], true );
-		if ( $json['errors'] ?? [] ) {
-			LoggerFactory::getInstance( 'MachineTranslation' )->error(
-				'Request to Lingva had errors: {errors}',
-				[
-					'errors' => json_encode( $json['errors'] ?? [] ),
-				]
-			);
+		return $translatedText;
+	}
+
+	private function splitTextIntoChunks( string $text, int $maxChunkSize ): array {
+		$sentences = $this->splitSentencesHtmlSafe( $text );
+		$chunks = [];
+		$currentChunk = '';
+
+		foreach ( $sentences as $sentence ) {
+			// If adding the next sentence exceeds the limit, start a new chunk
+			if ( mb_strlen( $currentChunk . ' ' . $sentence ) > $maxChunkSize ) {
+				$chunks[] = trim( $currentChunk );
+				$currentChunk = '';
+			}
+
+			$currentChunk .= ( $currentChunk ? ' ' : '' ) . $sentence;
 		}
 
-		return $json['data']['translation']['target']['text'] ?? '';
+		// Add the last chunk if there is remaining text
+		if ( $currentChunk ) {
+			$chunks[] = trim( $currentChunk );
+		}
+
+		return $chunks;
+	}
+
+	private function splitSentencesHtmlSafe( string $text ): array {
+		$htmlParts = preg_split( '/(<[^>]+>)/', $text, -1, PREG_SPLIT_DELIM_CAPTURE );
+		$iterator = IntlBreakIterator::createSentenceInstance();
+		$sentences = [];
+		$currentSentence = '';
+
+		foreach ( $htmlParts as $part ) {
+			if ( preg_match( '/<[^>]+>/', $part ) ) {
+				$currentSentence .= $part;
+				continue;
+			}
+
+			$iterator->setText( $part );
+			$start = $iterator->first();
+			for (
+				$end = $iterator->next();
+				$end !== IntlBreakIterator::DONE;
+				$start = $end, $end = $iterator->next()
+			) {
+				$sentence = trim( mb_substr( $part, $start, $end - $start ) );
+				$currentSentence .= $sentence;
+
+				if ( $currentSentence ) {
+					$sentences[] = $currentSentence;
+					$currentSentence = '';
+				}
+			}
+
+			if ( $start < mb_strlen( $part ) ) {
+				$currentSentence .= trim( mb_substr( $part, $start ) );
+			}
+		}
+
+		if ( $currentSentence ) {
+			$sentences[] = $currentSentence;
+		}
+
+		return $sentences;
 	}
 
 	public function storeCache( string $key, string $value ): bool {
