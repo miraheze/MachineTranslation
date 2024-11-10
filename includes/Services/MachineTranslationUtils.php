@@ -212,11 +212,7 @@ class MachineTranslationUtils {
 
 		// The GraphQL query breaks if we use json_encode,
 		// so we build the JSON manually
-		$json = <<<JSON
-			{
-				"query": "{$query}"
-			}
-		JSON;
+		$json = '{"query": "' . addslashes( $query ) . '"}';
 
 		// Call API
 		$request = $this->httpRequestFactory->createMultiClient(
@@ -226,7 +222,7 @@ class MachineTranslationUtils {
 			'method' => 'POST',
 			'body' => $json,
 			'headers' => [
-				'content-type' => 'application/json',
+				// 'content-type' => 'application/json',
 				'user-agent' => self::USER_AGENT,
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
