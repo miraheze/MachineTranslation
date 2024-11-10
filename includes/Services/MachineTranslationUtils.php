@@ -195,7 +195,7 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
-		$text = str_replace( [ '(', ')' ], [ '', '' ], $text );
+		$text = str_replace( [ '(', ')' ], [ '\(', '\)' ], $text );
 		$query = <<<GQL
 			{
 				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
