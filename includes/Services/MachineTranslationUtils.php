@@ -208,9 +208,9 @@ class MachineTranslationUtils {
 		)->run( [
 			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
 			'method' => 'POST',
-			'body' => [
+			'body' => json_encode( [
 				'query' => $query,
-			],
+			] ),
 			'headers' => [
 				'content-type' => 'application/json',
 				'user-agent' => self::USER_AGENT,
