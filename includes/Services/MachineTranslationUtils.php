@@ -237,7 +237,7 @@ class MachineTranslationUtils {
 			LoggerFactory::getInstance( 'MachineTranslation' )->error(
 				'Request to Lingva had errors: {errors}',
 				[
-					'errors' => json_encode( $json['errors'] ),
+					'errors' => json_encode( $json['errors'] ?? [] ),
 				]
 			);
 		}
