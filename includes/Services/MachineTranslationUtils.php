@@ -196,9 +196,11 @@ class MachineTranslationUtils {
 		string $targetLanguage
 	): string {
 		$query = <<<GQL
-			translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
-				target {
-					text
+			{
+				translation(source: "{$sourceLanguage}", target: "{$targetLanguage}", query: "{$text}") {
+					target {
+						text
+					}
 				}
 			}
 		GQL;
