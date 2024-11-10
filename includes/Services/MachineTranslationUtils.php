@@ -195,10 +195,6 @@ class MachineTranslationUtils {
 		string $sourceLanguage,
 		string $targetLanguage
 	): string {
-		// We need to make sure we escape parentheses
-		// or the GraphQL query breaks
-		$text = str_replace( [ '(', ')' ], [ '', '' ], $text );
-
 		// Build GraphQL query
 		$query = <<<GQL
 			{
