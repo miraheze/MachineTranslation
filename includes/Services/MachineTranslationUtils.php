@@ -211,6 +211,7 @@ class MachineTranslationUtils {
 				)
 			], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG ),
 			'headers' => [
+				'content-type' => 'application/json',
 				'user-agent' => self::USER_AGENT,
 			]
 		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
