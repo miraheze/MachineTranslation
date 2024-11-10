@@ -67,6 +67,7 @@ class MachineTranslationUtils {
 			'deepl' => $this->doDeepLTranslate( $text, $sourceLanguage, $targetLanguage ),
 			'google' => $this->doGoogleTranslate( $text, $sourceLanguage, $targetLanguage ),
 			'libretranslate' => $this->doLibreTranslate( $text, $sourceLanguage, $targetLanguage ),
+			'lingva' => $this->doLingvaTranslate( $text, $sourceLanguage, $targetLanguage ),
 			default => throw new ConfigException( 'Unsupported machine translation service configured.' ),
 		};
 	}
@@ -187,6 +188,48 @@ class MachineTranslationUtils {
 
 		$json = json_decode( $request['body'], true );
 		return $json['translatedText'] ?? '';
+	}
+
+	private function doLingvaTranslate(
+		string $text,
+		string $sourceLanguage,
+		string $targetLanguage
+	): string {
+		// Call API
+		$request = $this->httpRequestFactory->createMultiClient(
+			[ 'proxy' => $this->options->get( MainConfigNames::HTTPProxy ) ]
+		)->run( [
+			'url' => $this->options->get( ConfigNames::ServiceConfig )['url'] . '/api/graphql',
+			'method' => 'POST',
+			'body' => [
+				// Build GraphQL query
+				'query' => '{
+					translation(
+						source: "' . $sourceLanguage . '",
+      						target: "' . $targetLanguage . '",
+	    					query: "' . addslashes( $text ) . '"
+					) { target { text } }
+				}',
+			],
+			'headers' => [
+				'user-agent' => self::USER_AGENT,
+			]
+		], [ 'reqTimeout' => $this->options->get( ConfigNames::Timeout ) ] );
+
+		// Check if the HTTP response code is returning 200
+		if ( $request['code'] !== 200 ) {
+			LoggerFactory::getInstance( 'MachineTranslation' )->error(
+				'Request to LibreTranslate returned {code}: {reason}',
+				[
+					'code' => $request['code'],
+					'reason' => $request['reason'],
+				]
+			);
+			return '';
+		}
+
+		$json = json_decode( $request['body'], true );
+		return stripcslashes( $json['data']['translation']['target']['text'] ?? '' );
 	}
 
 	public function storeCache( string $key, string $value ): bool {
