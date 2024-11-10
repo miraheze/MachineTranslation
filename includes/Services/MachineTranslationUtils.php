@@ -214,7 +214,7 @@ class MachineTranslationUtils {
 		// so we build the JSON manually
 		$json = <<<JSON
 			{
-				"query": {$query}
+				"query": "{$query}"
 			}
 		JSON;
 
