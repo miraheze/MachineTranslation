@@ -104,18 +104,6 @@ class MachineTranslationLanguageFetcher {
 		return json_decode( $response['body'], true );
 	}
 
-	private function parseLibreTranslateLanguages( array $response ): array {
-		$supportedLanguages = [];
-		$languageMap = $this->getLanguageCodeMap();
-
-		foreach ( $response as $lang ) {
-			$code = $languageMap[$lang['code']] ?? $lang['code'];
-			$supportedLanguages[strtolower( $code )] = $lang['name'];
-		}
-
-		return $supportedLanguages;
-	}
-
 	private function parseDeepLLanguages( array $response ): array {
 		$supportedLanguages = [];
 
@@ -132,6 +120,18 @@ class MachineTranslationLanguageFetcher {
 
 		foreach ( $languages as $lang ) {
 			$supportedLanguages[strtolower( $lang['language'] )] = $lang['name'] ?? strtolower( $lang['language'] );
+		}
+
+		return $supportedLanguages;
+	}
+
+	private function parseLibreTranslateLanguages( array $response ): array {
+		$supportedLanguages = [];
+		$languageMap = $this->getLanguageCodeMap();
+
+		foreach ( $response as $lang ) {
+			$code = $languageMap[$lang['code']] ?? $lang['code'];
+			$supportedLanguages[strtolower( $code )] = $lang['name'];
 		}
 
 		return $supportedLanguages;
