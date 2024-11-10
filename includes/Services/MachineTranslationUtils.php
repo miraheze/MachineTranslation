@@ -224,7 +224,7 @@ class MachineTranslationUtils {
 					'code' => $request['code'],
 					'reason' => $request['reason'],
 					'request' => json_encode( $request ),
-					'query' => 'curl -X POST "https://lingva-translate-eta.vercel.app/api/graphql" -H "Content-Type: application/json" -d "' . json_encode( [
+					'query' => 'curl -X POST "https://lingva-translate-eta.vercel.app/api/graphql" -H "Content-Type: application/json" -d \'' . json_encode( [
 						// Build GraphQL query
 						'query' => sprintf(
 							'{ translation(source: "%s", target: "%s", query: "%s") { target { text } } }',
@@ -232,7 +232,7 @@ class MachineTranslationUtils {
 							addslashes( $targetLanguage ),
 							addslashes( $text )
 						)
-					] ) . '"',
+					] ) . '\'',
 				]
 			);
 			return '';
