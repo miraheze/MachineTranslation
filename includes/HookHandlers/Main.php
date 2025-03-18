@@ -6,6 +6,7 @@ use Article;
 use JobSpecification;
 use MediaWiki\Config\Config;
 use MediaWiki\Config\ConfigFactory;
+use MediaWiki\Content\TextContent;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
 use MediaWiki\JobQueue\JobQueueGroupFactory;
@@ -18,7 +19,6 @@ use Miraheze\MachineTranslation\ConfigNames;
 use Miraheze\MachineTranslation\Jobs\MachineTranslationJob;
 use Miraheze\MachineTranslation\Services\MachineTranslationLanguageFetcher;
 use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
-use TextContent;
 
 class Main {
 

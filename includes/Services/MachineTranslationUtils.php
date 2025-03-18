@@ -2,7 +2,7 @@
 
 namespace Miraheze\MachineTranslation\Services;
 
-use ConfigException;
+use MediaWiki\Config\ConfigException;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Logger\LoggerFactory;
