@@ -1,5 +1,7 @@
 <?php
 
+namespace Miraheze\MachineTranslation;
+
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\MediaWikiServices;
 use Miraheze\MachineTranslation\Services\MachineTranslationLanguageFetcher;
