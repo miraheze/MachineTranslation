@@ -20,6 +20,7 @@ class MachineTranslationJob extends Job {
 	private readonly string $target;
 	private readonly string $titleText;
 
+	/** @param array<string, string> $params */
 	public function __construct(
 		array $params,
 		ConfigFactory $configFactory,
