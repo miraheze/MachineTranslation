@@ -164,7 +164,7 @@ class Main implements ArticleViewHeaderHook {
 							MachineTranslationJob::JOB_NAME,
 							[
 								'cachekey' => $cacheKey,
-								'content' => $out->parseAsContent( $text ),
+								'content' => $out->parseAsContent( (string)$text ),
 								'source' => $source,
 								'target' => $target,
 								'titletext' => $baseTitle->getTitleValue()?->getText(),
@@ -202,7 +202,7 @@ class Main implements ArticleViewHeaderHook {
 		$out->addHTML( (string)$text );
 
 		// Page title (from base page) and language name (if enabled)
-		$out->setPageTitle( $languageTitle );
+		$out->setPageTitle( (string)$languageTitle );
 
 		// Set robot policy
 		if ( $this->config->get( ConfigNames::RobotPolicy ) ) {
