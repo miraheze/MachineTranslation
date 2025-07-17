@@ -100,21 +100,22 @@ class Main implements ArticleViewHeaderHook {
 			$this->machineTranslationLanguageFetcher->getLanguageCodeMap()
 		)[$languageCode] ?? $languageCode;
 
-		$titleText = $baseTitle->getTitleValue()?->getText() ?? '';
+		$titleText = $baseTitle->getTitleValue()?->getText();
 		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 			$titleCacheKey = $cacheKey . '-title';
 			$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
-			if ( !$titleText && !$this->config->get( ConfigNames::UseJobQueue ) ) {
+			if ( !$titleText || !$this->config->get( ConfigNames::UseJobQueue )
+			) {
 				$titleText = $this->machineTranslationUtils->callTranslation(
-					$baseTitle->getTitleValue()->getText(),
-					$source, $target
+					$baseTitle->getTitleValue()?->getText(),
+					(string)$source, (string)$target
 				);
 
 				$this->machineTranslationUtils->storeCache( $titleCacheKey, $titleText );
 			}
 		}
 
-		$languageTitle = $titleText ?: $baseTitle->getTitleValue()->getText();
+		$languageTitle = $titleText ?: $baseTitle->getTitleValue()?->getText();
 		if ( $this->config->get( ConfigNames::DisplayLanguageName ) ) {
 			// Get title text for replace (the base page title + language name)
 			$languageName = $this->messageLocalizer->msg( 'parentheses', ucfirst(
@@ -166,7 +167,7 @@ class Main implements ArticleViewHeaderHook {
 								'content' => $out->parseAsContent( $text ),
 								'source' => $source,
 								'target' => $target,
-								'titletext' => $baseTitle->getTitleValue()?->getText() ?? '',
+								'titletext' => $baseTitle->getTitleValue()?->getText(),
 							]
 						)
 					);
@@ -183,8 +184,8 @@ class Main implements ArticleViewHeaderHook {
 				}
 			} else {
 				$text = $this->machineTranslationUtils->callTranslation(
-					$out->parseAsContent( $text ),
-					$source, $target
+					$out->parseAsContent( (string)$text ),
+					(string)$source, (string)$target
 				);
 
 				if ( !$text ) {
@@ -198,7 +199,7 @@ class Main implements ArticleViewHeaderHook {
 
 		// Output translated text
 		$out->clearHTML();
-		$out->addHTML( $text );
+		$out->addHTML( (string)$text );
 
 		// Page title (from base page) and language name (if enabled)
 		$out->setPageTitle( $languageTitle );
