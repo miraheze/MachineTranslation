@@ -26,7 +26,7 @@ class Main {
 	private readonly MessageLocalizer $messageLocalizer;
 
 	public function __construct(
-		ConfigFactory $ConfigFactory,
+		ConfigFactory $configFactory,
 		private readonly JobQueueGroupFactory $jobQueueGroupFactory,
 		private readonly LanguageNameUtils $languageNameUtils,
 		private readonly MachineTranslationLanguageFetcher $machineTranslationLanguageFetcher,
