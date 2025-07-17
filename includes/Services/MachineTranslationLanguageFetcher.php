@@ -126,7 +126,7 @@ class MachineTranslationLanguageFetcher {
 	}
 
 	/**
-	 * @param array{data?: array{languages?: array<array{language: string, name?: string}>}} $response
+	 * @phan-param array{data?: array{languages?: array<array{language: string, name?: string}>}} $response
 	 * @return array{}|non-empty-array<string, string>
 	 */
 	private function parseGoogleLanguages( array $response ): array {
