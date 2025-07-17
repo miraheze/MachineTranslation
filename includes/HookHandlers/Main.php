@@ -18,6 +18,10 @@ use Miraheze\MachineTranslation\ConfigNames;
 use Miraheze\MachineTranslation\Jobs\MachineTranslationJob;
 use Miraheze\MachineTranslation\Services\MachineTranslationLanguageFetcher;
 use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
+use function array_flip;
+use function strcmp;
+use function strtolower;
+use function ucfirst;
 
 class Main implements ArticleViewHeaderHook {
 
@@ -96,7 +100,7 @@ class Main implements ArticleViewHeaderHook {
 			$this->machineTranslationLanguageFetcher->getLanguageCodeMap()
 		)[$languageCode] ?? $languageCode;
 
-		$titleText = $baseTitle->getTitleValue()->getText();
+		$titleText = $baseTitle->getTitleValue()?->getText() ?? '';
 		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 			$titleCacheKey = $cacheKey . '-title';
 			$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
@@ -162,7 +166,7 @@ class Main implements ArticleViewHeaderHook {
 								'content' => $out->parseAsContent( $text ),
 								'source' => $source,
 								'target' => $target,
-								'titletext' => $baseTitle->getTitleValue()->getText(),
+								'titletext' => $baseTitle->getTitleValue()?->getText() ?? '',
 							]
 						)
 					);
