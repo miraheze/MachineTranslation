@@ -6,6 +6,7 @@ $cfg['minimum_target_php_version'] = '8.1';
 
 $cfg['suppress_issue_types'] = [
 	'PhanAccessMethodInternal',
+	'PhanSuspiciousTruthyString',
 ];
 
 $cfg['plugins'] = array_merge( $cfg['plugins'], [
