@@ -39,13 +39,13 @@ class MachineTranslationJob extends Job {
 
 	public function run(): bool {
 		$translatedText = $this->machineTranslationUtils->getCache( $this->cacheKey );
-		if ( !$translatedText ) {
+		if ( $translatedText === false ) {
 			$translatedText = $this->machineTranslationUtils->callTranslation(
 				$this->content, $this->source, $this->target
 			);
 		}
 
-		if ( !$translatedText ) {
+		if ( $translatedText === false || $translatedText === '' ) {
 			$this->machineTranslationUtils->deleteCache( $this->cacheKey . '-progress' );
 			return true;
 		}
@@ -56,7 +56,7 @@ class MachineTranslationJob extends Job {
 		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
 			$titleCacheKey = $this->cacheKey . '-title';
 			$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
-			if ( !$titleText ) {
+			if ( $titleText === false ) {
 				$titleText = $this->machineTranslationUtils->callTranslation(
 					$this->titleText, $this->source, $this->target
 				);
