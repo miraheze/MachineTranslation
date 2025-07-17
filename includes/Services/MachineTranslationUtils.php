@@ -42,7 +42,7 @@ class MachineTranslationUtils {
 		string $targetLanguage
 	): string {
 		// Check parameters
-		if ( !$text || !$targetLanguage ) {
+		if ( $text === '' || $targetLanguage === '' ) {
 			return '';
 		}
 
