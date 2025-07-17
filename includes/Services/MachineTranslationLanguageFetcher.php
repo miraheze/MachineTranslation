@@ -81,7 +81,7 @@ class MachineTranslationLanguageFetcher {
 	private function makeRequest( string $url, array $query, array $headers ): array {
 		if ( $this->machineTranslationUtils->getCache( $url ) ) {
 			$cachedResponse = $this->machineTranslationUtils->getCache( $url );
-			return json_decode( $cachedResponse, true ) ?? [];
+			return (array)json_decode( $cachedResponse ?: '', true );
 		}
 
 		$response = $this->httpRequestFactory->createMultiClient(
@@ -108,12 +108,12 @@ class MachineTranslationLanguageFetcher {
 		}
 
 		$this->machineTranslationUtils->storeCache( $url, $response['body'] );
-		return json_decode( $response['body'], true ) ?? [];
+		return (array)json_decode( $response['body'], true );
 	}
 
 	/**
 	 * @param array<array{language: string, name: string}> $response
-	 * @return array<string, string>
+	 * @return non-empty-array<string, string>
 	 */
 	private function parseDeepLLanguages( array $response ): array {
 		$supportedLanguages = [];
@@ -127,7 +127,7 @@ class MachineTranslationLanguageFetcher {
 
 	/**
 	 * @param array{data?: array{languages?: array<array{language: string, name?: string}>}} $response
-	 * @return array<string, string>
+	 * @return non-empty-array<string, string>
 	 */
 	private function parseGoogleLanguages( array $response ): array {
 		$languages = $response['data']['languages'] ?? [];
@@ -142,7 +142,7 @@ class MachineTranslationLanguageFetcher {
 
 	/**
 	 * @param array<array{code: string, name: string}> $response
-	 * @return array<string, string>
+	 * @return non-empty-array<string, string>
 	 */
 	private function parseLibreTranslateLanguages( array $response ): array {
 		$supportedLanguages = [];
