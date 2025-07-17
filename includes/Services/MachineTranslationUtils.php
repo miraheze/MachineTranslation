@@ -9,6 +9,11 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use Miraheze\MachineTranslation\ConfigNames;
 use ObjectCacheFactory;
+use function array_filter;
+use function json_decode;
+use function strlen;
+use function strtolower;
+use const CACHE_ANYTHING;
 
 class MachineTranslationUtils {
 
