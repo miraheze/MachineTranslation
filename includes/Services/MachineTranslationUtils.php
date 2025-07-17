@@ -23,20 +23,12 @@ class MachineTranslationUtils {
 	public const USER_AGENT = 'MachineTranslation, MediaWiki extension ' .
 		'(https://github.com/miraheze/MachineTranslation)';
 
-	private HttpRequestFactory $httpRequestFactory;
-	private ObjectCacheFactory $objectCacheFactory;
-	private ServiceOptions $options;
-
 	public function __construct(
-		HttpRequestFactory $httpRequestFactory,
-		ObjectCacheFactory $objectCacheFactory,
-		ServiceOptions $options
+		private readonly HttpRequestFactory $httpRequestFactory,
+		private readonly ObjectCacheFactory $objectCacheFactory,
+		private readonly ServiceOptions $options
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
-
-		$this->httpRequestFactory = $httpRequestFactory;
-		$this->objectCacheFactory = $objectCacheFactory;
-		$this->options = $options;
 	}
 
 	public function callTranslation(

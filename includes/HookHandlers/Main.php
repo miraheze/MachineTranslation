@@ -21,31 +21,18 @@ use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
 
 class Main implements ArticleViewHeaderHook {
 
-	private Config $config;
-	private JobQueueGroupFactory $jobQueueGroupFactory;
-	private LanguageNameUtils $languageNameUtils;
-	private MachineTranslationLanguageFetcher $machineTranslationLanguageFetcher;
-	private MachineTranslationUtils $machineTranslationUtils;
-	private MessageLocalizer $messageLocalizer;
-	private TitleFactory $titleFactory;
-	private WikiPageFactory $wikiPageFactory;
+	private readonly Config $config;
+	private readonly MessageLocalizer $messageLocalizer;
 
 	public function __construct(
 		ConfigFactory $configFactory,
-		JobQueueGroupFactory $jobQueueGroupFactory,
-		LanguageNameUtils $languageNameUtils,
-		MachineTranslationLanguageFetcher $machineTranslationLanguageFetcher,
-		MachineTranslationUtils $machineTranslationUtils,
-		TitleFactory $titleFactory,
-		WikiPageFactory $wikiPageFactory
+		private readonly JobQueueGroupFactory $jobQueueGroupFactory,
+		private readonly LanguageNameUtils $languageNameUtils,
+		private readonly MachineTranslationLanguageFetcher $machineTranslationLanguageFetcher,
+		private readonly MachineTranslationUtils $machineTranslationUtils,
+		private readonly TitleFactory $titleFactory,
+		private readonly WikiPageFactory $wikiPageFactory
 	) {
-		$this->jobQueueGroupFactory = $jobQueueGroupFactory;
-		$this->languageNameUtils = $languageNameUtils;
-		$this->machineTranslationLanguageFetcher = $machineTranslationLanguageFetcher;
-		$this->machineTranslationUtils = $machineTranslationUtils;
-		$this->titleFactory = $titleFactory;
-		$this->wikiPageFactory = $wikiPageFactory;
-
 		$this->config = $configFactory->makeConfig( 'MachineTranslation' );
 		$this->messageLocalizer = RequestContext::getMain();
 	}
