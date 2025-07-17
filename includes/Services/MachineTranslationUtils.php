@@ -190,7 +190,7 @@ class MachineTranslationUtils {
 		return $cache->set( $cacheKey, $value, $this->options->get( ConfigNames::CachingTime ) );
 	}
 
-	public function getCache( string $key ): bool|string {
+	public function getCache( string $key ): string|false {
 		if ( !$this->options->get( ConfigNames::Caching ) ) {
 			return false;
 		}
