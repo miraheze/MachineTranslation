@@ -113,7 +113,7 @@ class MachineTranslationLanguageFetcher {
 
 	/**
 	 * @param array<array{language: string, name: string}> $response
-	 * @return non-empty-array<string, string>
+	 * @return array{}|non-empty-array<string, string>
 	 */
 	private function parseDeepLLanguages( array $response ): array {
 		$supportedLanguages = [];
@@ -127,7 +127,7 @@ class MachineTranslationLanguageFetcher {
 
 	/**
 	 * @param array{data?: array{languages?: array<array{language: string, name?: string}>}} $response
-	 * @return non-empty-array<string, string>
+	 * @return array{}|non-empty-array<string, string>
 	 */
 	private function parseGoogleLanguages( array $response ): array {
 		$languages = $response['data']['languages'] ?? [];
@@ -142,7 +142,7 @@ class MachineTranslationLanguageFetcher {
 
 	/**
 	 * @param array<array{code: string, name: string}> $response
-	 * @return non-empty-array<string, string>
+	 * @return array{}|non-empty-array<string, string>
 	 */
 	private function parseLibreTranslateLanguages( array $response ): array {
 		$supportedLanguages = [];
