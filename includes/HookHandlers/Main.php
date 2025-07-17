@@ -2,28 +2,27 @@
 
 namespace Miraheze\MachineTranslation\HookHandlers;
 
-use Article;
 use JobSpecification;
 use MediaWiki\Config\Config;
 use MediaWiki\Config\ConfigFactory;
 use MediaWiki\Content\TextContent;
-use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
 use MediaWiki\JobQueue\JobQueueGroupFactory;
 use MediaWiki\Languages\LanguageNameUtils;
+use MediaWiki\Page\Hook\ArticleViewHeaderHook;
 use MediaWiki\Page\WikiPageFactory;
-use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
-use MessageLocalizer;
 use Miraheze\MachineTranslation\ConfigNames;
 use Miraheze\MachineTranslation\Jobs\MachineTranslationJob;
 use Miraheze\MachineTranslation\Services\MachineTranslationLanguageFetcher;
 use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
+use function array_flip;
+use function strtolower;
+use function ucfirst;
 
-class Main {
+class Main implements ArticleViewHeaderHook {
 
 	private readonly Config $config;
-	private readonly MessageLocalizer $messageLocalizer;
 
 	public function __construct(
 		ConfigFactory $configFactory,
@@ -35,16 +34,9 @@ class Main {
 		private readonly WikiPageFactory $wikiPageFactory
 	) {
 		$this->config = $configFactory->makeConfig( 'MachineTranslation' );
-		$this->messageLocalizer = RequestContext::getMain();
 	}
 
-	/**
-	 * https://www.mediawiki.org/wiki/Manual:Hooks/ArticleViewHeader
-	 *
-	 * @param Article $article
-	 * @param bool|ParserOutput|null &$outputDone
-	 * @param bool &$pcache
-	 */
+	/** @inheritDoc */
 	public function onArticleViewHeader( $article, &$outputDone, &$pcache ) {
 		// Use parser cache
 		$pcache = true;
@@ -65,7 +57,7 @@ class Main {
 		$subpage = $title->getSubpageText();
 
 		// Not subpage if the $basepage is the same as $subpage
-		if ( strcmp( $basepage, $subpage ) === 0 ) {
+		if ( $basepage === $subpage ) {
 			return;
 		}
 
@@ -92,24 +84,23 @@ class Main {
 		}
 
 		$cacheKey = $baseTitle->getArticleID() . '-' . $baseTitle->getLatestRevID() . '-' . $languageCode;
-
 		$baseCode = $baseTitle->getPageLanguage()->getCode();
 
-		$source = array_flip(
+		$source = (string)( array_flip(
 			$this->machineTranslationLanguageFetcher->getLanguageCodeMap()
-		)[$baseCode] ?? $baseCode;
+		)[$baseCode] ?? $baseCode );
 
-		$target = array_flip(
+		$target = (string)( array_flip(
 			$this->machineTranslationLanguageFetcher->getLanguageCodeMap()
-		)[$languageCode] ?? $languageCode;
+		)[$languageCode] ?? $languageCode );
 
-		$titleText = $baseTitle->getTitleValue()->getText();
+		$titleText = $baseTitle->getTitleValue()?->getText();
 		if ( $this->config->get( ConfigNames::TranslateTitle ) ) {
-			$titleCacheKey = $cacheKey . '-title';
+			$titleCacheKey = "$cacheKey-title";
 			$titleText = $this->machineTranslationUtils->getCache( $titleCacheKey );
-			if ( !$titleText && !$this->config->get( ConfigNames::UseJobQueue ) ) {
+			if ( $titleText === false || !$this->config->get( ConfigNames::UseJobQueue ) ) {
 				$titleText = $this->machineTranslationUtils->callTranslation(
-					$baseTitle->getTitleValue()->getText(),
+					$baseTitle->getTitleValue()?->getText(),
 					$source, $target
 				);
 
@@ -117,36 +108,35 @@ class Main {
 			}
 		}
 
-		$languageTitle = $titleText ?: $baseTitle->getTitleValue()->getText();
+		$context = $article->getContext();
+		$out = $context->getOutput();
+
+		$languageTitle = $titleText !== '' ? $titleText : $baseTitle->getTitleValue()?->getText();
 		if ( $this->config->get( ConfigNames::DisplayLanguageName ) ) {
 			// Get title text for replace (the base page title + language name)
-			$languageName = $this->messageLocalizer->msg( 'parentheses', ucfirst(
+			$languageName = $context->msg( 'parentheses', ucfirst(
 				$this->languageNameUtils->getLanguageName( $languageCode ) ?:
 				$this->machineTranslationLanguageFetcher->getLanguageName( $languageCode )
 			) )->text();
 
 			$languageTitle .= Html::element( 'span',
-				[
-					'class' => 'target-language',
-				],
+				[ 'class' => 'ext-machinetranslation-language-name' ],
 				' ' . $languageName
 			);
 		}
-
-		$out = $article->getContext()->getOutput();
 
 		// Get cache if enabled
 		$contentCache = $this->machineTranslationUtils->getCache( $cacheKey );
 		$text = $contentCache;
 
-		$titleTextCache = $this->machineTranslationUtils->getCache( $cacheKey . '-title' );
-		$needsTitleText = !$titleTextCache &&
+		$titleTextCache = $this->machineTranslationUtils->getCache( "$cacheKey-title" );
+		$needsTitleText = $titleTextCache === false &&
 			$this->config->get( ConfigNames::TranslateTitle ) &&
 			$this->config->get( ConfigNames::UseJobQueue );
 
 		// Translate if cache not found
-		if ( !$contentCache || $needsTitleText ) {
-			if ( !$contentCache ) {
+		if ( $text === false || $needsTitleText ) {
+			if ( $text === false ) {
 				// Get content of the base page
 				$content = $page->getContent();
 				if ( !( $content instanceof TextContent ) ) {
@@ -159,7 +149,7 @@ class Main {
 
 			// Do translation
 			if ( $this->config->get( ConfigNames::UseJobQueue ) ) {
-				if ( !$this->machineTranslationUtils->getCache( $cacheKey . '-progress' ) ) {
+				if ( !$this->machineTranslationUtils->getCache( "$cacheKey-progress" ) ) {
 					$jobQueueGroup = $this->jobQueueGroupFactory->makeJobQueueGroup();
 					$jobQueueGroup->push(
 						new JobSpecification(
@@ -169,20 +159,18 @@ class Main {
 								'content' => $out->parseAsContent( $text ),
 								'source' => $source,
 								'target' => $target,
-								'titletext' => $baseTitle->getTitleValue()->getText(),
+								'titletext' => $baseTitle->getTitleValue()?->getText(),
 							]
 						)
 					);
 				}
 
-				if ( !$contentCache ) {
+				if ( $contentCache === false ) {
 					$message = 'machinetranslation-processing';
 
 					// Store cache if enabled
-					$this->machineTranslationUtils->storeCache( $cacheKey . '-progress', $message );
-					$text = Html::noticeBox(
-						$this->messageLocalizer->msg( $message )->escaped(), ''
-					);
+					$this->machineTranslationUtils->storeCache( "$cacheKey-progress", $message );
+					$text = Html::noticeBox( $context->msg( $message )->escaped(), '' );
 				}
 			} else {
 				$text = $this->machineTranslationUtils->callTranslation(
@@ -190,7 +178,7 @@ class Main {
 					$source, $target
 				);
 
-				if ( !$text ) {
+				if ( $text === '' ) {
 					return;
 				}
 

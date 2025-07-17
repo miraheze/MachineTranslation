@@ -9,6 +9,11 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use Miraheze\MachineTranslation\ConfigNames;
 use ObjectCacheFactory;
+use function array_filter;
+use function json_decode;
+use function strlen;
+use function strtolower;
+use const CACHE_ANYTHING;
 
 class MachineTranslationUtils {
 
@@ -37,7 +42,7 @@ class MachineTranslationUtils {
 		string $targetLanguage
 	): string {
 		// Check parameters
-		if ( !$text || !$targetLanguage ) {
+		if ( $text === '' || $targetLanguage === '' ) {
 			return '';
 		}
 
@@ -190,7 +195,7 @@ class MachineTranslationUtils {
 		return $cache->set( $cacheKey, $value, $this->options->get( ConfigNames::CachingTime ) );
 	}
 
-	public function getCache( string $key ): bool|string {
+	public function getCache( string $key ): string|false {
 		if ( !$this->options->get( ConfigNames::Caching ) ) {
 			return false;
 		}
