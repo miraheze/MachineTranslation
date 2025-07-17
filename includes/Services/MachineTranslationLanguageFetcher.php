@@ -17,20 +17,12 @@ class MachineTranslationLanguageFetcher {
 		MainConfigNames::HTTPProxy,
 	];
 
-	private HttpRequestFactory $httpRequestFactory;
-	private MachineTranslationUtils $machineTranslationUtils;
-	private ServiceOptions $options;
-
 	public function __construct(
-		HttpRequestFactory $httpRequestFactory,
-		MachineTranslationUtils $machineTranslationUtils,
-		ServiceOptions $options
+		private readonly HttpRequestFactory $httpRequestFactory,
+		private readonly MachineTranslationUtils $machineTranslationUtils,
+		private readonly ServiceOptions $options
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
-
-		$this->httpRequestFactory = $httpRequestFactory;
-		$this->machineTranslationUtils = $machineTranslationUtils;
-		$this->options = $options;
 	}
 
 	public function getSupportedLanguages(): array {
