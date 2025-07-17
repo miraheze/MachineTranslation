@@ -12,24 +12,22 @@ class MachineTranslationJob extends Job {
 
 	public const JOB_NAME = 'MachineTranslationJob';
 
-	private Config $config;
-	private MachineTranslationUtils $machineTranslationUtils;
+	private readonly Config $config;
 
-	private string $cacheKey;
-	private string $content;
-	private string $source;
-	private string $target;
-	private string $titleText;
+	private readonly string $cacheKey;
+	private readonly string $content;
+	private readonly string $source;
+	private readonly string $target;
+	private readonly string $titleText;
 
 	public function __construct(
 		array $params,
 		ConfigFactory $configFactory,
-		MachineTranslationUtils $machineTranslationUtils
+		private readonly MachineTranslationUtils $machineTranslationUtils
 	) {
 		parent::__construct( self::JOB_NAME, $params );
 
 		$this->config = $configFactory->makeConfig( 'MachineTranslation' );
-		$this->machineTranslationUtils = $machineTranslationUtils;
 
 		$this->cacheKey = $params['cachekey'];
 		$this->content = $params['content'];
