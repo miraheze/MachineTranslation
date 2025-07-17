@@ -2,7 +2,6 @@
 
 namespace Miraheze\MachineTranslation\HookHandlers;
 
-use Article;
 use JobSpecification;
 use MediaWiki\Config\Config;
 use MediaWiki\Config\ConfigFactory;
@@ -11,8 +10,8 @@ use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
 use MediaWiki\JobQueue\JobQueueGroupFactory;
 use MediaWiki\Languages\LanguageNameUtils;
+use MediaWiki\Page\Hook\ArticleViewHeaderHook;
 use MediaWiki\Page\WikiPageFactory;
-use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Title\TitleFactory;
 use MessageLocalizer;
 use Miraheze\MachineTranslation\ConfigNames;
@@ -20,7 +19,7 @@ use Miraheze\MachineTranslation\Jobs\MachineTranslationJob;
 use Miraheze\MachineTranslation\Services\MachineTranslationLanguageFetcher;
 use Miraheze\MachineTranslation\Services\MachineTranslationUtils;
 
-class Main {
+class Main implements ArticleViewHeaderHook {
 
 	private Config $config;
 	private JobQueueGroupFactory $jobQueueGroupFactory;
@@ -51,13 +50,7 @@ class Main {
 		$this->messageLocalizer = RequestContext::getMain();
 	}
 
-	/**
-	 * https://www.mediawiki.org/wiki/Manual:Hooks/ArticleViewHeader
-	 *
-	 * @param Article $article
-	 * @param bool|ParserOutput|null &$outputDone
-	 * @param bool &$pcache
-	 */
+	/** @inheritDoc */
 	public function onArticleViewHeader( $article, &$outputDone, &$pcache ) {
 		// Use parser cache
 		$pcache = true;
