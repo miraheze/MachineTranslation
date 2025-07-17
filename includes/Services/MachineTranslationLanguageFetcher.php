@@ -8,6 +8,8 @@ use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use Miraheze\MachineTranslation\ConfigNames;
+use function json_decode;
+use function strtolower;
 
 class MachineTranslationLanguageFetcher {
 
@@ -25,6 +27,7 @@ class MachineTranslationLanguageFetcher {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 	}
 
+	/** @return array<string, string> */
 	public function getSupportedLanguages(): array {
 		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 
@@ -39,34 +42,46 @@ class MachineTranslationLanguageFetcher {
 		return $supportedLanguages;
 	}
 
+	/** @return array<string, string> */
 	private function fetchDeepLSupportedLanguages(): array {
 		$url = $this->options->get( ConfigNames::ServiceConfig )['url'] . '/v2/languages';
-		$apiKey = $this->options->get( ConfigNames::ServiceConfig )['apikey'];
 
 		$query = [ 'type' => 'source' ];
-		$headers = [ 'authorization' => 'DeepL-Auth-Key ' . $apiKey ];
+		$headers = [ 'authorization' => 'DeepL-Auth-Key ' . $this->getApiKey() ];
 
 		$response = $this->makeRequest( $url, $query, $headers );
 		return $this->parseDeepLLanguages( $response );
 	}
 
+	/** @return array<string, string> */
 	private function fetchGoogleSupportedLanguages(): array {
 		$url = 'https://translation.googleapis.com/language/translate/v2/languages';
-		$query = [ 'key' => $this->options->get( ConfigNames::ServiceConfig )['apikey'] ];
+		$query = [ 'key' => $this->getApiKey() ];
 		$response = $this->makeRequest( $url, $query, [] );
 		return $this->parseGoogleLanguages( $response );
 	}
 
+	/** @return array<string, string> */
 	private function fetchLibreTranslateSupportedLanguages(): array {
 		$url = $this->options->get( ConfigNames::ServiceConfig )['url'] . '/languages';
 		$response = $this->makeRequest( $url, [], [] );
 		return $this->parseLibreTranslateLanguages( $response );
 	}
 
+	private function getApiKey(): string {
+		return $this->options->get( ConfigNames::ServiceConfig )['apikey'];
+	}
+
+	/**
+	 * @param string $url
+	 * @param array<string,string> $query
+	 * @param array<string,string> $headers
+	 * @return array<string,mixed>
+	 */
 	private function makeRequest( string $url, array $query, array $headers ): array {
 		if ( $this->machineTranslationUtils->getCache( $url ) ) {
 			$cachedResponse = $this->machineTranslationUtils->getCache( $url );
-			return json_decode( $cachedResponse, true );
+			return json_decode( $cachedResponse, true ) ?? [];
 		}
 
 		$response = $this->httpRequestFactory->createMultiClient(
@@ -93,9 +108,13 @@ class MachineTranslationLanguageFetcher {
 		}
 
 		$this->machineTranslationUtils->storeCache( $url, $response['body'] );
-		return json_decode( $response['body'], true );
+		return json_decode( $response['body'], true ) ?? [];
 	}
 
+	/**
+	 * @param array<array{language: string, name: string}> $response
+	 * @return array<string, string>
+	 */
 	private function parseDeepLLanguages( array $response ): array {
 		$supportedLanguages = [];
 
@@ -106,6 +125,10 @@ class MachineTranslationLanguageFetcher {
 		return $supportedLanguages;
 	}
 
+	/**
+	 * @param array{data?: array{languages?: array<array{language: string, name?: string}>}} $response
+	 * @return array<string, string>
+	 */
 	private function parseGoogleLanguages( array $response ): array {
 		$languages = $response['data']['languages'] ?? [];
 		$supportedLanguages = [];
@@ -117,6 +140,10 @@ class MachineTranslationLanguageFetcher {
 		return $supportedLanguages;
 	}
 
+	/**
+	 * @param array<array{code: string, name: string}> $response
+	 * @return array<string, string>
+	 */
 	private function parseLibreTranslateLanguages( array $response ): array {
 		$supportedLanguages = [];
 		$languageMap = $this->getLanguageCodeMap();
@@ -129,6 +156,7 @@ class MachineTranslationLanguageFetcher {
 		return $supportedLanguages;
 	}
 
+	/** @return array<string, string> */
 	public function getLanguageCodeMap(): array {
 		$serviceType = strtolower( $this->options->get( ConfigNames::ServiceConfig )['type'] ?? '' );
 		return match ( $serviceType ) {
