@@ -79,9 +79,9 @@ class MachineTranslationLanguageFetcher {
 	 * @return array<string,mixed>
 	 */
 	private function makeRequest( string $url, array $query, array $headers ): array {
-		if ( $this->machineTranslationUtils->getCache( $url ) ) {
-			$cachedResponse = $this->machineTranslationUtils->getCache( $url );
-			return (array)json_decode( $cachedResponse ?: '', true );
+		$cachedResponse = $this->machineTranslationUtils->getCache( $url );
+		if ( $cachedResponse !== false ) {
+			return (array)json_decode( $cachedResponse, true );
 		}
 
 		$response = $this->httpRequestFactory->createMultiClient(
