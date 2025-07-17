@@ -202,7 +202,7 @@ class Main implements ArticleViewHeaderHook {
 		$out->addHTML( (string)$text );
 
 		// Page title (from base page) and language name (if enabled)
-		$out->setPageTitle( (string)$languageTitle );
+		$out->setPageTitle( $languageTitle );
 
 		// Set robot policy
 		if ( $this->config->get( ConfigNames::RobotPolicy ) ) {
